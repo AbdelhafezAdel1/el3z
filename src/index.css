@@ -1,0 +1,154 @@
+/* =====================================================
+   LOCAL SELF-HOSTED CAIRO FONT — loaded before paint
+   ===================================================== */
+@import "@fontsource/cairo/400.css";
+@import "@fontsource/cairo/500.css";
+@import "@fontsource/cairo/600.css";
+@import "@fontsource/cairo/700.css";
+@import "@fontsource/cairo/800.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-sans: "Cairo", system-ui, -apple-system, sans-serif;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+    font-family: "Cairo", system-ui, -apple-system, sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Custom Smooth Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* =====================================================
+   PRINT STYLES — Arabic RTL Fix + Clean A4 Layout
+   ===================================================== */
+@page {
+  size: A4 portrait;
+  margin: 10mm 12mm;
+}
+
+@media print {
+  /* 1. Colour preservation */
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* 2. Body reset — force self-hosted Cairo so glyphs never break */
+  html,
+  body {
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: "Cairo", "Segoe UI", Tahoma, sans-serif !important;
+    -webkit-font-smoothing: antialiased !important;
+  }
+
+  /* 3. Hide UI chrome */
+  aside,
+  header,
+  nav,
+  button,
+  .no-print,
+  [role="toolbar"],
+  [role="navigation"] {
+    display: none !important;
+  }
+
+  /* 4. RTL Arabic fix — THIS is the main fix for خش في بعضه
+        The issue: browsers apply word/letter spacing that breaks Arabic
+        ligatures in print mode. Cairo loaded locally prevents fallback. */
+  * {
+    /* Disable tracking (letter-spacing) — critical for Arabic correctness */
+    letter-spacing: 0 !important;
+    /* Prevent word-break inside Arabic words */
+    word-break: keep-all !important;
+    overflow-wrap: anywhere !important;
+    /* Force RTL text direction respect */
+    unicode-bidi: isolate;
+  }
+
+  /* Restore mono font for numbers/codes — so they don't inherit Arabic overrides */
+  .font-mono,
+  [class*="font-mono"] {
+    font-family: "Courier New", Courier, monospace !important;
+    letter-spacing: 0 !important;
+  }
+
+  /* 5. Remove screen-only overflow clipping — main cause of cut text */
+  #invoice-document-render,
+  #invoice-document-render * {
+    overflow: visible !important;
+  }
+
+  /* 6. Invoice document wrapper — clean A4 box */
+  #invoice-document-render {
+    width: 186mm !important;
+    max-width: 186mm !important;
+    min-height: unset !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    margin: 0 auto !important;
+    padding: 4mm 6mm !important;
+    page-break-after: avoid !important;
+    font-family: "Cairo", "Segoe UI", Tahoma, sans-serif !important;
+    font-size: 10.5pt !important;
+    line-height: 1.55 !important;
+  }
+
+  /* 7. Fix rounded corners causing overflow clip on print */
+  [class*="rounded"] {
+    border-radius: 4px !important;
+    overflow: visible !important;
+  }
+
+  /* 8. Table stability */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    table-layout: auto !important;
+  }
+
+  td,
+  th {
+    word-break: normal !important;
+    white-space: normal !important;
+    overflow: visible !important;
+  }
+
+  /* Prevent row split across pages */
+  tr {
+    page-break-inside: avoid !important;
+  }
+
+  /* 9. Remove sm: responsive hidden content from print */
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+}
