@@ -50,6 +50,7 @@ export interface Company {
   email: string;
   website: string;
   iban: string;
+  bank_account_number?: string;
   bank_name_ar: string;
   bank_name_en?: string;
   logo_url?: string;
