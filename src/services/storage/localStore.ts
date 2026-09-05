@@ -195,10 +195,16 @@ export const LocalStore = {
   getCompany(): Company {
     initLocalStorage();
     try {
-      return (
-        JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPANY) || "{}") ||
-        defaultCompany
-      );
+      const raw = localStorage.getItem(STORAGE_KEYS.COMPANY);
+      if (!raw) return defaultCompany;
+      const parsed = JSON.parse(raw);
+      return {
+        ...defaultCompany,
+        ...parsed,
+        iban: parsed.iban || defaultCompany.iban,
+        bank_account_number: parsed.bank_account_number || defaultCompany.bank_account_number,
+        bank_name_ar: parsed.bank_name_ar || defaultCompany.bank_name_ar,
+      };
     } catch {
       return defaultCompany;
     }

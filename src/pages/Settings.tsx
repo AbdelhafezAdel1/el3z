@@ -1121,7 +1121,7 @@ export const Settings: React.FC = () => {
               <CreditCard className="w-4 h-4" />
               البيانات البنكية والحسابات (الظاهرة على الفاتورة)
             </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   اسم البنك
@@ -1137,6 +1137,20 @@ export const Settings: React.FC = () => {
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
+                  رقم الحساب البنكي
+                </label>
+                <input
+                  type="text"
+                  value={company.bank_account_number}
+                  onChange={(e) =>
+                    setCompany({ ...company, bank_account_number: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-mono text-sm focus:border-emerald-500 font-bold"
+                  placeholder="695000010006086045924"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
                   رقم الآيبان (IBAN)
                 </label>
                 <input
@@ -1146,7 +1160,7 @@ export const Settings: React.FC = () => {
                     setCompany({ ...company, iban: e.target.value })
                   }
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-mono text-sm focus:border-emerald-500 font-bold"
-                  placeholder="SA0000000000000000000000"
+                  placeholder="SA2880000695608016045924"
                 />
               </div>
             </div>
