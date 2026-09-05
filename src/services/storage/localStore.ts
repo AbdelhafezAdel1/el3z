@@ -60,7 +60,10 @@ export const defaultSettings: CompanySettings = {
     "شكراً لتعاملكم معنا. الفاتورة معتمدة إلكترونياً ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك.",
   invoice_footer_notes_en:
     "Thank you for your business. Digitally certified invoice conforming to ZATCA standards.",
-  zatca_environment: "sandbox",
+  zatca_environment: "production",
+  zatca_production_csid: "csid_prod_169853957575",
+  zatca_compliance_csid: "csid_comp_1788636269390",
+  zatca_api_secret: "+Y10IlbWU1P3ZdE+xnswZA7m9aHg2PgRexzruXHw1zA=",
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 };

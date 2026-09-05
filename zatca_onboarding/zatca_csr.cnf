@@ -1,0 +1,28 @@
+oid_section = OIDs
+
+[OIDs]
+certificateTemplateName = 1.3.6.1.4.1.311.20.2
+
+[req]
+default_bits = 2048
+emailAddress = a506025022@gmail.com
+req_extensions = req_ext
+distinguished_name = dn
+prompt = no
+
+[dn]
+C = SA
+OU = Khobar
+O = Rand Al-Az General Contracting Est.
+CN = Rand-AlAz-EGS-01
+
+[req_ext]
+certificateTemplateName = ASN1:PRINTABLESTRING:ZATCA-Code-Signing
+subjectAltName = dirName:alt_names
+
+[alt_names]
+SN = 1-RandAlAz|2-EGS1|3-623b3f2e-e478-4389-a2a1-b84738573111
+UID = 310814787400003
+title = 1100
+registeredAddress = Al-Khobar
+businessCategory = Construction
