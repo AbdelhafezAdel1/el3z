@@ -427,73 +427,90 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({
         </div>
 
         {/* BOTTOM SECTION: Left = Financial Totals, Right = Compact Notes, Below = Bank Strip */}
-        <div className="pt-2 sm:pt-2.5 border-t-2 border-slate-800 mt-2">
+        <div className="pt-3 sm:pt-3.5 border-t-2 border-slate-800 mt-3 sm:mt-4">
           {/* Row 1: Totals strictly on the LEFT, Notes on the RIGHT */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-start">
-            {/* Notes Column (Right in RTL - sm:col-span-7) */}
-            <div className="sm:col-span-7 space-y-1.5 order-2 sm:order-1 text-start">
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 sm:gap-5 items-start">
+            {/* Notes Column (Right in RTL - sm:col-span-5) */}
+            <div className="sm:col-span-5 space-y-2.5 order-2 sm:order-1 text-start">
               {/* Notes — Only display what user writes */}
               {invoice.notes && invoice.notes.trim() !== "" && (
-                <div className="p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/70 text-[11px] leading-relaxed text-slate-700 shadow-2xs">
-                  <span className="font-bold text-amber-900">ملاحظات: </span>
-                  <span>{invoice.notes}</span>
+                <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/70 text-xs sm:text-[12.5px] leading-relaxed text-slate-700 shadow-2xs">
+                  <div className="font-bold text-amber-900 pb-1 border-b border-amber-200/60 mb-1.5 flex items-center gap-1.5">
+                    <span>ملاحظات الفاتورة</span>
+                  </div>
+                  <p className="whitespace-pre-line">{invoice.notes}</p>
                 </div>
               )}
 
               {invoice.payment_terms && invoice.payment_terms.trim() !== "" && (
-                <p className="text-[11px] text-slate-600">
-                  <span className="font-bold text-slate-800">شروط الدفع: </span>
+                <div className="p-2.5 px-3 rounded-xl bg-slate-50/80 border border-slate-200/60 text-xs text-slate-700">
+                  <span className="font-bold text-slate-900">شروط الدفع: </span>
                   <span>{invoice.payment_terms}</span>
-                </p>
+                </div>
               )}
             </div>
 
-            {/* Totals Column (Left in RTL - sm:col-span-5) */}
-            <div className="sm:col-span-5 order-1 sm:order-2">
-              <div className="bg-slate-50/95 rounded-xl p-3 border border-slate-200 shadow-2xs space-y-1.5 text-xs sm:text-[13px]">
+            {/* Totals Column (Left in RTL - sm:col-span-7) — Enlarged to fill space prominently */}
+            <div className="sm:col-span-7 order-1 sm:order-2">
+              <div className="bg-slate-50/95 rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs space-y-2.5 text-xs sm:text-sm">
                 <div className="flex items-center justify-between text-slate-600">
-                  <span>المجموع الفرعي (Subtotal):</span>
-                  <span className="font-mono font-bold text-slate-900">{formatSAR(invoice.subtotal || 0, "ar")}</span>
+                  <span className="font-medium">المجموع الفرعي (Subtotal):</span>
+                  <span className="font-mono font-bold text-slate-900 text-sm sm:text-base">{formatSAR(invoice.subtotal || 0, "ar")}</span>
                 </div>
                 {Number(invoice.discount_amount) > 0 && (
                   <div className="flex items-center justify-between text-rose-600 font-bold">
                     <span>إجمالي الخصم (Discount):</span>
-                    <span className="font-mono">-{formatSAR(invoice.discount_amount, "ar")}</span>
+                    <span className="font-mono text-sm sm:text-base">-{formatSAR(invoice.discount_amount, "ar")}</span>
                   </div>
                 )}
-                <div className="flex items-center justify-between text-slate-700 font-medium">
-                  <span>الخاضع للضريبة (Taxable):</span>
-                  <span className="font-mono font-bold text-slate-900">{formatSAR(invoice.taxable_amount || invoice.subtotal || 0, "ar")}</span>
+                <div className="flex items-center justify-between text-slate-700">
+                  <span className="font-medium">الخاضع للضريبة (Taxable):</span>
+                  <span className="font-mono font-bold text-slate-900 text-sm sm:text-base">{formatSAR(invoice.taxable_amount || invoice.subtotal || 0, "ar")}</span>
                 </div>
-                <div className="flex items-center justify-between text-slate-800 font-bold">
-                  <span>ضريبة القيمة المضافة (15%):</span>
-                  <span className="font-mono font-black text-emerald-800">+{formatSAR(invoice.vat_amount || 0, "ar")}</span>
+                <div className="flex items-center justify-between text-slate-800 font-semibold">
+                  <span>ضريبة القيمة المضافة (15% VAT):</span>
+                  <span className="font-mono font-black text-emerald-800 text-sm sm:text-base">+{formatSAR(invoice.vat_amount || 0, "ar")}</span>
                 </div>
-                <div className="pt-1.5 border-t-2 border-slate-900 flex items-center justify-between font-black text-slate-950 text-sm sm:text-base">
-                  <span className="text-slate-900 font-black">المجموع الكلي:</span>
-                  <span className="font-mono text-slate-950 text-lg sm:text-xl font-black">{formatSAR(invoice.grand_total || 0, "ar")}</span>
+
+                {/* Grand Total Box — Enlarged, highlighted, filling page space */}
+                <div className="pt-2 border-t border-slate-200">
+                  <div className="bg-slate-900 text-white rounded-xl p-3 sm:p-3.5 px-4 flex items-center justify-between shadow-sm">
+                    <div>
+                      <div className="font-black text-sm sm:text-base tracking-wide">
+                        المجموع الكلي:
+                      </div>
+                      <div className="text-[10px] sm:text-[11px] text-slate-300 font-normal">
+                        Grand Total (Incl. VAT)
+                      </div>
+                    </div>
+                    <div className="text-left">
+                      <span className="font-mono text-xl sm:text-2xl font-black text-emerald-400 tracking-tight">
+                        {formatSAR(invoice.grand_total || 0, "ar")}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Row 2: Separate Bank Info Section under the Total with Account & IBAN Side-by-Side */}
-          <div className="mt-2.5 p-2 px-3.5 bg-slate-50/90 rounded-xl border border-slate-200 text-[11px] flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-slate-700 shadow-2xs">
-            <div className="flex items-center gap-1.5 font-bold text-slate-900">
-              <Building2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+          <div className="mt-3 p-2.5 px-4 bg-slate-50/90 rounded-xl border border-slate-200 text-xs sm:text-[12px] flex flex-wrap items-center justify-between gap-x-6 gap-y-1 text-slate-700 shadow-2xs">
+            <div className="flex items-center gap-2 font-bold text-slate-900">
+              <Building2 className="w-4 h-4 text-emerald-700 shrink-0" />
               <span>بيانات الحساب البنكي ({comp.bank_name_ar || "مصرف الراجحي"}):</span>
             </div>
-            <div className="flex flex-wrap items-center gap-x-4 sm:gap-x-6 gap-y-1">
+            <div className="flex flex-wrap items-center gap-x-5 sm:gap-x-6 gap-y-1">
               <div>
                 <span className="text-slate-500 font-medium">رقم الحساب: </span>
-                <span className="font-mono font-bold text-slate-900 select-all tracking-wider">
+                <span className="font-mono font-bold text-slate-900 select-all tracking-wider text-xs sm:text-[13px]">
                   {comp.bank_account_number || "695000010006086045924"}
                 </span>
               </div>
-              <span className="hidden sm:inline text-slate-300">|</span>
+              <span className="hidden sm:inline text-slate-300 font-bold">|</span>
               <div>
                 <span className="text-slate-500 font-medium">الآيبان (IBAN): </span>
-                <span className="font-mono font-bold text-slate-900 select-all tracking-wider">
+                <span className="font-mono font-bold text-slate-900 select-all tracking-wider text-xs sm:text-[13px]">
                   {comp.iban || "SA2880000695608016045924"}
                 </span>
               </div>
