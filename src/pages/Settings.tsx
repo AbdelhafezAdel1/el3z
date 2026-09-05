@@ -97,7 +97,7 @@ export const Settings: React.FC = () => {
 
   // ZATCA Masked Secret & Onboarding State
   const [showZatcaSecret, setShowZatcaSecret] = useState(false);
-  const [zatcaOtp, setZatcaOtp] = useState("033685");
+  const [zatcaOtp, setZatcaOtp] = useState("103408");
   const [isOnboarding, setIsOnboarding] = useState(false);
   const [onboardingSuccess, setOnboardingSuccess] = useState(false);
 
@@ -1601,7 +1601,7 @@ export const Settings: React.FC = () => {
                       onChange={(e) =>
                         setZatcaOtp(e.target.value.replace(/\D/g, ""))
                       }
-                      placeholder="033685"
+                      placeholder="103408"
                       className="w-full px-4 py-3 bg-white border-2 border-emerald-600/40 focus:border-emerald-600 rounded-xl text-center font-mono font-black text-xl tracking-[0.3em] text-emerald-950 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 shadow-inner"
                     />
                   </div>
