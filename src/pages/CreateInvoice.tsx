@@ -88,9 +88,7 @@ export const CreateInvoice: React.FC<CreateInvoiceProps> = ({
   const [dueDate, setDueDate] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<string>("bank_transfer");
   const [paymentTerms, setPaymentTerms] = useState<string>("الدفع خلال 15 يوماً من تاريخ الإصدار");
-  const [notes, setNotes] = useState<string>(
-    "شكراً لتعاملكم معنا. الفاتورة معتمدة إلكترونياً ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك.",
-  );
+  const [notes, setNotes] = useState<string>("");
 
   // Items State (Initialized with default row)
   const [items, setItems] = useState<ItemRow[]>([

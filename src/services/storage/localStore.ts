@@ -57,10 +57,8 @@ export const defaultSettings: CompanySettings = {
   invoice_prefix: "INV-",
   include_qr_code: true,
   invoice_background_url: "/images/invoice-bg.jpg",
-  invoice_footer_notes_ar:
-    "شكراً لتعاملكم معنا. الفاتورة معتمدة إلكترونياً ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك.",
-  invoice_footer_notes_en:
-    "Thank you for your business. Digitally certified invoice conforming to ZATCA standards.",
+  invoice_footer_notes_ar: "",
+  invoice_footer_notes_en: "",
   zatca_environment: "production",
   zatca_production_csid: "csid_prod_169853957575",
   zatca_compliance_csid: "csid_comp_1788636269390",

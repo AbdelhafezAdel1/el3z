@@ -220,10 +220,10 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({
               </div>
 
               {/* Left: Document Title Badge & Invoice Number — Centered in their box */}
-              <div className="flex flex-col items-center justify-center gap-1.5 text-center sm:items-end">
-                <div className="w-full max-w-[200px] flex flex-col items-center justify-center gap-1.5 text-center">
-                  <div className="w-full bg-slate-900 text-white py-1.5 px-3 rounded-xl font-black text-xs sm:text-sm shadow-sm text-center">
-                    {isSimplified ? "فاتورة ضريبية مبسطة" : "فاتورة ضريبية"}
+              <div className="flex flex-col items-center justify-center text-center">
+                <div className="w-full max-w-[210px] flex flex-col items-center justify-center gap-1.5 text-center mx-auto">
+                  <div className="w-full bg-slate-900 text-white py-1.5 px-3 rounded-xl font-black text-xs sm:text-sm shadow-sm text-center flex items-center justify-center">
+                    <span>{isSimplified ? "فاتورة ضريبية مبسطة" : "فاتورة ضريبية"}</span>
                   </div>
                   <div className="w-full bg-slate-100 text-slate-900 py-1.5 px-3 rounded-lg border border-slate-300 font-mono font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-2xs text-center">
                     <Hash className="w-3.5 h-3.5 text-slate-700 shrink-0" />
@@ -263,10 +263,10 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({
               </div>
 
               {/* Left Column: Centered Document Title Badge & Invoice Number in their dedicated section */}
-              <div className="flex flex-col items-center justify-center gap-1.5 text-center sm:items-end">
-                <div className="w-full max-w-[200px] flex flex-col items-center justify-center gap-1.5 text-center">
-                  <div className="w-full bg-slate-900 text-white py-1.5 px-3 rounded-xl font-black text-xs sm:text-sm shadow-sm text-center">
-                    {isSimplified ? "فاتورة ضريبية مبسطة" : "فاتورة ضريبية"}
+              <div className="flex flex-col items-center justify-center text-center">
+                <div className="w-full max-w-[210px] flex flex-col items-center justify-center gap-1.5 text-center mx-auto">
+                  <div className="w-full bg-slate-900 text-white py-1.5 px-3 rounded-xl font-black text-xs sm:text-sm shadow-sm text-center flex items-center justify-center">
+                    <span>{isSimplified ? "فاتورة ضريبية مبسطة" : "فاتورة ضريبية"}</span>
                   </div>
                   <div className="w-full bg-slate-100 text-slate-900 py-1.5 px-3 rounded-lg border border-slate-300 font-mono font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-2xs text-center">
                     <Hash className="w-3.5 h-3.5 text-slate-700 shrink-0" />
@@ -432,29 +432,20 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-start">
             {/* Notes Column (Right in RTL - sm:col-span-7) */}
             <div className="sm:col-span-7 space-y-1.5 order-2 sm:order-1 text-start">
-              {/* Notes — Compact and Small */}
-              {invoice.notes ? (
+              {/* Notes — Only display what user writes */}
+              {invoice.notes && invoice.notes.trim() !== "" && (
                 <div className="p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/70 text-[11px] leading-relaxed text-slate-700 shadow-2xs">
                   <span className="font-bold text-amber-900">ملاحظات: </span>
                   <span>{invoice.notes}</span>
                 </div>
-              ) : (
-                <div className="p-2.5 rounded-xl bg-slate-50/70 border border-slate-200/60 text-[11px] text-slate-500">
-                  <span>الفاتورة معتمدة إلكترونياً ومطابقة لاشتراطات هيئة الزكاة والضريبة والجمارك (ZATCA).</span>
-                </div>
               )}
 
-              {invoice.payment_terms && (
+              {invoice.payment_terms && invoice.payment_terms.trim() !== "" && (
                 <p className="text-[11px] text-slate-600">
                   <span className="font-bold text-slate-800">شروط الدفع: </span>
                   <span>{invoice.payment_terms}</span>
                 </p>
               )}
-
-              <p className="text-[10px] text-slate-400 leading-normal pt-0.5">
-                {settings?.invoice_footer_notes_ar ||
-                  "شكراً لتعاملكم معنا. الفاتورة معتمدة إلكترونياً ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك (ZATCA)."}
-              </p>
             </div>
 
             {/* Totals Column (Left in RTL - sm:col-span-5) */}
