@@ -31,6 +31,15 @@ export async function downloadInvoicePDF(
       logging: false,
       backgroundColor: "#ffffff",
       onclone: (clonedDoc) => {
+        const clonedElement = clonedDoc.getElementById(elementId);
+        if (clonedElement) {
+          clonedElement.style.borderRadius = "0px";
+          clonedElement.style.boxShadow = "none";
+          clonedElement.style.border = "none";
+          clonedElement.style.width = "794px";
+          clonedElement.style.minHeight = "1123px";
+          clonedElement.style.margin = "0";
+        }
         const style = clonedDoc.createElement("style");
         style.innerHTML = `
           * {
@@ -50,7 +59,7 @@ export async function downloadInvoicePDF(
 
     const imgData = canvas.toDataURL("image/jpeg", 0.98);
 
-    // Standard A4 dimensions: 210mm x 297mm
+    // Standard A4 dimensions: 210mm x 297mm (100% full-page fill without white borders)
     const pdf = new jsPDF({
       orientation: "portrait",
       unit: "mm",
@@ -58,25 +67,8 @@ export async function downloadInvoicePDF(
       compress: true,
     });
 
-    const pageWidth = 210;
-    const pageHeight = 297;
-    const margin = 4; // 4mm printable margin
-    const availWidth = pageWidth - margin * 2;
-    const availHeight = pageHeight - margin * 2;
-
-    const imgRatio = canvas.width / canvas.height;
-    let renderWidth = availWidth;
-    let renderHeight = availWidth / imgRatio;
-
-    if (renderHeight > availHeight) {
-      renderHeight = availHeight;
-      renderWidth = availHeight * imgRatio;
-    }
-
-    const xOffset = margin + (availWidth - renderWidth) / 2;
-    const yOffset = margin + (availHeight - renderHeight) / 2;
-
-    pdf.addImage(imgData, "JPEG", xOffset, yOffset, renderWidth, renderHeight, undefined, "FAST");
+    // Exact full A4 page coverage
+    pdf.addImage(imgData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
 
     // Save and download locally
     const fileName = `فاتورة_${invoice.invoice_number || "INV"}.pdf`;
@@ -118,15 +110,55 @@ export async function downloadInvoicePDF(
 /**
  * Direct browser printing with exact single A4 portrait styling
  */
-export function printInvoice(
+export async function printInvoice(
   elementId: string = "invoice-document-render",
-): void {
+): Promise<void> {
   const element = document.getElementById(elementId);
   if (!element) {
     console.error(`Invoice element "${elementId}" not found for printing`);
     window.print();
     return;
   }
+
+  // Ensure all web fonts are fully loaded before canvas snapshot
+  if (document.fonts && document.fonts.ready) {
+    await document.fonts.ready;
+  }
+
+  // High-resolution canvas capture with Arabic RTL font preservation — exactly matching downloadInvoicePDF
+  const canvas = await html2canvas(element, {
+    scale: 3, // Ultra-crisp vector-level resolution
+    useCORS: true,
+    logging: false,
+    backgroundColor: "#ffffff",
+    onclone: (clonedDoc) => {
+      const clonedElement = clonedDoc.getElementById(elementId);
+      if (clonedElement) {
+        clonedElement.style.borderRadius = "0px";
+        clonedElement.style.boxShadow = "none";
+        clonedElement.style.border = "none";
+        clonedElement.style.width = "794px";
+        clonedElement.style.minHeight = "1123px";
+        clonedElement.style.margin = "0";
+      }
+      const style = clonedDoc.createElement("style");
+      style.innerHTML = `
+        * {
+          letter-spacing: 0 !important;
+          font-family: 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif !important;
+          word-break: keep-all !important;
+          text-rendering: geometricPrecision !important;
+          -webkit-font-smoothing: antialiased !important;
+        }
+        .font-mono {
+          font-family: 'Courier New', Courier, monospace !important;
+        }
+      `;
+      clonedDoc.head.appendChild(style);
+    },
+  });
+
+  const imgData = canvas.toDataURL("image/jpeg", 0.98);
 
   const printWindow = window.open("", "_blank");
   if (!printWindow) {
@@ -140,64 +172,52 @@ export function printInvoice(
       <head>
         <meta charset="utf-8">
         <title>طباعة الفاتورة الضريبية</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-        <script src="https://cdn.tailwindcss.com"></script>
         <style>
           @page {
             size: A4 portrait;
-            margin: 6mm 8mm;
+            margin: 0;
           }
           *, *::before, *::after {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            letter-spacing: 0 !important;
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
           }
-          body {
-            font-family: 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif !important;
-            background: #ffffff !important;
+          html, body {
+            width: 100%;
+            height: 100%;
             margin: 0 !important;
             padding: 0 !important;
-            -webkit-font-smoothing: antialiased !important;
-            word-break: keep-all !important;
-            line-height: 1.4;
+            background: #ffffff !important;
+            overflow: hidden;
           }
-          #invoice-document-render {
-            box-shadow: none !important;
-            border: none !important;
-            border-radius: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            margin: 0 auto !important;
-            padding: 2mm !important;
-            overflow: visible !important;
-          }
-          table {
-            border-collapse: collapse !important;
-            width: 100% !important;
-          }
-          tr {
-            page-break-inside: avoid !important;
-          }
-          td, th {
-            word-break: normal !important;
-          }
-          .font-mono {
-            font-family: 'Courier New', Courier, monospace !important;
+          .invoice-img {
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+            display: block;
+            margin: 0;
+            padding: 0;
           }
         </style>
       </head>
-      <body class="p-1">
-        ${element.outerHTML}
+      <body>
+        <img id="print-invoice-img" class="invoice-img" src="${imgData}" alt="فاتورة ضريبية" />
         <script>
-          window.onload = function() {
-            setTimeout(function() {
+          const img = document.getElementById('print-invoice-img');
+          const triggerPrint = () => {
+            setTimeout(() => {
+              window.focus();
               window.print();
               window.close();
-            }, 600);
+            }, 250);
           };
+          if (img && img.complete) {
+            triggerPrint();
+          } else if (img) {
+            img.onload = triggerPrint;
+          } else {
+            triggerPrint();
+          }
         </script>
       </body>
     </html>

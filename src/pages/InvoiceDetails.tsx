@@ -95,8 +95,9 @@ export const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({
     }
   };
 
-  const handlePrint = () => {
-    printInvoice("invoice-document-render");
+  const handlePrint = async () => {
+    info("جاري تجهيز الفاتورة للطباعة...");
+    await printInvoice("invoice-document-render");
   };
 
   const handleSubmitZatca = async () => {

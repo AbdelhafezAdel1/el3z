@@ -150,7 +150,7 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({
   return (
     <div
       id="invoice-document-render"
-      className={`relative w-full max-w-[820px] bg-white text-slate-800 shadow-xl rounded-2xl border border-slate-200 text-xs sm:text-[13px] flex flex-col ${
+      className={`relative w-full max-w-[840px] min-h-[1188px] bg-white text-slate-800 shadow-xl rounded-2xl border border-slate-200 text-xs sm:text-[13px] flex flex-col justify-between ${
         bgImage ? "px-8 sm:px-12 pt-28 pb-10" : "p-6 sm:p-9"
       } ${className}`}
       style={{
@@ -169,12 +169,12 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({
         />
       </div>
 
-      <div className="relative z-10 flex flex-col">
+      <div className="relative z-10 flex-1 flex flex-col">
         {/* TOP SECTION */}
         <div>
           {/* Header Layout: Right = Company Info, Center = QR Code, Left = Invoice Badge & Number */}
           {!bgImage ? (
-            <div className="flex flex-col sm:flex-row items-center justify-between pb-4 border-b-2 border-slate-800 gap-4 text-center sm:text-start">
+            <div className="flex flex-col sm:flex-row items-center justify-between pb-3.5 border-b-2 border-slate-800 gap-4 text-center sm:text-start">
               {/* Right: Company Info & Logo */}
               <div className="flex flex-col sm:flex-row items-center gap-3.5 text-center sm:text-start">
                 <img
@@ -219,58 +219,66 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                 )}
               </div>
 
-              {/* Left: Document Title Badge & Invoice Number */}
-              <div className="flex flex-col items-center sm:items-end justify-center gap-2 text-center sm:text-end">
-                <div className="inline-block bg-slate-900 text-white px-4 py-1.5 rounded-xl font-black text-xs sm:text-sm shadow-sm text-center">
-                  {isSimplified ? "فاتورة ضريبية مبسطة" : "فاتورة ضريبية"}
-                </div>
-                <div className="flex items-center justify-center gap-1.5 text-xs sm:text-sm font-mono font-black text-slate-900 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-300">
-                  <Hash className="w-4 h-4 text-slate-700" />
-                  <span>{invoice.invoice_number || "INV-2026-XXXXXX"}</span>
+              {/* Left: Document Title Badge & Invoice Number — Centered in their box */}
+              <div className="flex flex-col items-center justify-center gap-1.5 text-center sm:items-end">
+                <div className="w-full max-w-[200px] flex flex-col items-center justify-center gap-1.5 text-center">
+                  <div className="w-full bg-slate-900 text-white py-1.5 px-3 rounded-xl font-black text-xs sm:text-sm shadow-sm text-center">
+                    {isSimplified ? "فاتورة ضريبية مبسطة" : "فاتورة ضريبية"}
+                  </div>
+                  <div className="w-full bg-slate-100 text-slate-900 py-1.5 px-3 rounded-lg border border-slate-300 font-mono font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-2xs text-center">
+                    <Hash className="w-3.5 h-3.5 text-slate-700 shrink-0" />
+                    <span>{invoice.invoice_number || "INV-2026-XXXXXX"}</span>
+                  </div>
                 </div>
               </div>
             </div>
           ) : (
             /* When official letterhead background is used */
-            <div className="flex flex-col sm:flex-row items-center justify-between pb-4 border-b-2 border-slate-800 gap-4 text-center sm:text-start">
-              <div className="text-center sm:text-start">
+            <div className="grid grid-cols-1 sm:grid-cols-3 items-center pb-3 border-b-2 border-slate-800 gap-3 text-center">
+              {/* Right Column: VAT & CR */}
+              <div className="text-center sm:text-start space-y-0.5">
                 <p className="text-xs sm:text-sm text-slate-800 font-bold">
                   الرقم الضريبي: <span className="font-mono text-slate-900">{comp.vat_number}</span>
                 </p>
-                <p className="text-xs text-slate-500 font-mono mt-0.5">
+                <p className="text-xs text-slate-500 font-mono">
                   س.ت: {comp.cr_number}
                 </p>
               </div>
 
-              {/* Center QR */}
-              <div className="p-1 bg-white rounded-xl border border-slate-200 shadow-xs">
-                {qrDataUrl ? (
-                  <img
-                    src={qrDataUrl}
-                    alt="ZATCA QR Code"
-                    className="w-20 h-20 sm:w-22 sm:h-22 object-contain"
-                  />
-                ) : (
-                  <div className="w-20 h-20 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-xs">
-                    QR
-                  </div>
-                )}
+              {/* Center Column: QR */}
+              <div className="flex justify-center">
+                <div className="p-1 bg-white rounded-xl border border-slate-200 shadow-xs inline-flex items-center justify-center">
+                  {qrDataUrl ? (
+                    <img
+                      src={qrDataUrl}
+                      alt="ZATCA QR Code"
+                      className="w-20 h-20 sm:w-22 sm:h-22 object-contain"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-xs">
+                      QR
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <div className="space-y-1.5 flex flex-col items-center sm:items-end">
-                <div className="inline-block bg-slate-900 text-white px-3.5 py-1.5 rounded-xl font-black text-xs sm:text-sm shadow-sm text-center">
-                  {isSimplified ? "فاتورة ضريبية مبسطة" : "فاتورة ضريبية"}
-                </div>
-                <div className="bg-slate-100 text-slate-900 px-3 py-1 rounded-lg border border-slate-300 font-mono font-black text-xs sm:text-sm flex items-center justify-center gap-1.5">
-                  <Hash className="w-3.5 h-3.5 text-slate-700" />
-                  <span>{invoice.invoice_number || "INV-2026-XXXXXX"}</span>
+              {/* Left Column: Centered Document Title Badge & Invoice Number in their dedicated section */}
+              <div className="flex flex-col items-center justify-center gap-1.5 text-center sm:items-end">
+                <div className="w-full max-w-[200px] flex flex-col items-center justify-center gap-1.5 text-center">
+                  <div className="w-full bg-slate-900 text-white py-1.5 px-3 rounded-xl font-black text-xs sm:text-sm shadow-sm text-center">
+                    {isSimplified ? "فاتورة ضريبية مبسطة" : "فاتورة ضريبية"}
+                  </div>
+                  <div className="w-full bg-slate-100 text-slate-900 py-1.5 px-3 rounded-lg border border-slate-300 font-mono font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-2xs text-center">
+                    <Hash className="w-3.5 h-3.5 text-slate-700 shrink-0" />
+                    <span>{invoice.invoice_number || "INV-2026-XXXXXX"}</span>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
           {/* METADATA GRID: Customer Info & Invoice Dates — Centered within each div */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-5 sm:my-6 p-4 sm:p-5 rounded-2xl bg-slate-50/90 border border-slate-200 text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 my-3 sm:my-4 p-3.5 sm:p-4 rounded-2xl bg-slate-50/90 border border-slate-200 text-center">
             {/* Customer Details Box */}
             <div className="space-y-2 text-xs sm:text-[13px] flex flex-col items-center justify-center text-center p-2 rounded-xl bg-white/70 border border-slate-100">
               <div className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide flex items-center justify-center gap-1.5 pb-1 border-b border-slate-200 w-full">
@@ -418,49 +426,40 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({
           </div>
         </div>
 
-        {/* BOTTOM SECTION: Left = Financial Totals, Right = Bank Info & Compact Notes */}
-        <div className="pt-2.5 sm:pt-3 border-t-2 border-slate-800 mt-1">
+        {/* BOTTOM SECTION: Left = Financial Totals, Right = Compact Notes, Below = Bank Strip */}
+        <div className="pt-2 sm:pt-2.5 border-t-2 border-slate-800 mt-2">
+          {/* Row 1: Totals strictly on the LEFT, Notes on the RIGHT */}
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-start">
-            {/* Right Column (sm:col-span-7 in RTL): Bank Account Details & Compact Notes */}
-            <div className="sm:col-span-7 space-y-2 order-2 sm:order-1 text-start">
-              {/* Bank Account Details Card */}
-              <div className="p-3 bg-slate-50/90 rounded-xl border border-slate-200 text-xs space-y-1.5 shadow-2xs">
-                <div className="flex items-center gap-1.5 font-bold text-slate-900 border-b border-slate-200/80 pb-1">
-                  <Building2 className="w-3.5 h-3.5 text-emerald-700" />
-                  <span>بيانات الحساب البنكي ({comp.bank_name_ar || "مصرف الراجحي"})</span>
-                </div>
-                <div className="flex items-center justify-between text-slate-700 pt-0.5">
-                  <span className="font-semibold text-slate-600">رقم الحساب:</span>
-                  <span className="font-mono font-bold text-slate-900 tracking-wider select-all">
-                    {comp.bank_account_number || "695000010006086045924"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-slate-700">
-                  <span className="font-semibold text-slate-600">الآيبان (IBAN):</span>
-                  <span className="font-mono font-bold text-slate-900 tracking-wider select-all">
-                    {comp.iban || "SA2880000695608016045924"}
-                  </span>
-                </div>
-              </div>
-
+            {/* Notes Column (Right in RTL - sm:col-span-7) */}
+            <div className="sm:col-span-7 space-y-1.5 order-2 sm:order-1 text-start">
               {/* Notes — Compact and Small */}
-              {invoice.notes && (
-                <div className="p-2 rounded-lg bg-amber-50/60 border border-amber-200/60 text-[11px] leading-relaxed text-slate-700">
+              {invoice.notes ? (
+                <div className="p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/70 text-[11px] leading-relaxed text-slate-700 shadow-2xs">
                   <span className="font-bold text-amber-900">ملاحظات: </span>
                   <span>{invoice.notes}</span>
                 </div>
+              ) : (
+                <div className="p-2.5 rounded-xl bg-slate-50/70 border border-slate-200/60 text-[11px] text-slate-500">
+                  <span>الفاتورة معتمدة إلكترونياً ومطابقة لاشتراطات هيئة الزكاة والضريبة والجمارك (ZATCA).</span>
+                </div>
               )}
 
-              {/* ZATCA & Legal Footer Text */}
+              {invoice.payment_terms && (
+                <p className="text-[11px] text-slate-600">
+                  <span className="font-bold text-slate-800">شروط الدفع: </span>
+                  <span>{invoice.payment_terms}</span>
+                </p>
+              )}
+
               <p className="text-[10px] text-slate-400 leading-normal pt-0.5">
                 {settings?.invoice_footer_notes_ar ||
                   "شكراً لتعاملكم معنا. الفاتورة معتمدة إلكترونياً ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك (ZATCA)."}
               </p>
             </div>
 
-            {/* Left Column (sm:col-span-5 in RTL): Financial Totals Block strictly on the LEFT */}
+            {/* Totals Column (Left in RTL - sm:col-span-5) */}
             <div className="sm:col-span-5 order-1 sm:order-2">
-              <div className="bg-slate-50/95 rounded-xl p-3 sm:p-4 border border-slate-200 shadow-2xs space-y-1.5 text-xs sm:text-[13px]">
+              <div className="bg-slate-50/95 rounded-xl p-3 border border-slate-200 shadow-2xs space-y-1.5 text-xs sm:text-[13px]">
                 <div className="flex items-center justify-between text-slate-600">
                   <span>المجموع الفرعي (Subtotal):</span>
                   <span className="font-mono font-bold text-slate-900">{formatSAR(invoice.subtotal || 0, "ar")}</span>
@@ -483,6 +482,29 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                   <span className="text-slate-900 font-black">المجموع الكلي:</span>
                   <span className="font-mono text-slate-950 text-lg sm:text-xl font-black">{formatSAR(invoice.grand_total || 0, "ar")}</span>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Row 2: Separate Bank Info Section under the Total with Account & IBAN Side-by-Side */}
+          <div className="mt-2.5 p-2 px-3.5 bg-slate-50/90 rounded-xl border border-slate-200 text-[11px] flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-slate-700 shadow-2xs">
+            <div className="flex items-center gap-1.5 font-bold text-slate-900">
+              <Building2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+              <span>بيانات الحساب البنكي ({comp.bank_name_ar || "مصرف الراجحي"}):</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-x-4 sm:gap-x-6 gap-y-1">
+              <div>
+                <span className="text-slate-500 font-medium">رقم الحساب: </span>
+                <span className="font-mono font-bold text-slate-900 select-all tracking-wider">
+                  {comp.bank_account_number || "695000010006086045924"}
+                </span>
+              </div>
+              <span className="hidden sm:inline text-slate-300">|</span>
+              <div>
+                <span className="text-slate-500 font-medium">الآيبان (IBAN): </span>
+                <span className="font-mono font-bold text-slate-900 select-all tracking-wider">
+                  {comp.iban || "SA2880000695608016045924"}
+                </span>
               </div>
             </div>
           </div>

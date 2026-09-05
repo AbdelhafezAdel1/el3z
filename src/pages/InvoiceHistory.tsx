@@ -366,11 +366,12 @@ export const InvoiceHistory: React.FC<InvoiceHistoryProps> = ({
   const handlePrint = (inv: Invoice) => {
     setMenuOpenId(null);
     setPreviewInvoice(null);
+    info("جاري تجهيز الفاتورة للطباعة...");
     setPreviewInvoice(inv);
-    setTimeout(() => {
-      printInvoice("invoice-document-render");
+    setTimeout(async () => {
+      await printInvoice("invoice-document-render");
       setPreviewInvoice(null);
-    }, 400);
+    }, 450);
   };
 
   /* ─── Confirm Dialog Config ─────────────────────── */
