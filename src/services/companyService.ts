@@ -13,6 +13,15 @@ export class CompanyService {
           .limit(1)
           .single();
         if (!error && data) {
+          if (!data.iban || data.iban === "SA4480000000608010167890" || data.iban.includes("0000000000")) {
+            data.iban = "SA2880000695608016045924";
+          }
+          if (!data.bank_account_number || data.bank_account_number.includes("0000000000")) {
+            data.bank_account_number = "695000010006086045924";
+          }
+          if (!data.bank_name_ar) {
+            data.bank_name_ar = "مصرف الراجحي";
+          }
           LocalStore.saveCompany(data);
           return data;
         }

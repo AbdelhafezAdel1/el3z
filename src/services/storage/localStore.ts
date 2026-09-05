@@ -251,7 +251,21 @@ export const LocalStore = {
   getInvoices(): Invoice[] {
     initLocalStorage();
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEYS.INVOICES) || "[]");
+      const list: Invoice[] = JSON.parse(localStorage.getItem(STORAGE_KEYS.INVOICES) || "[]");
+      return list.map((inv) => {
+        if (inv.company) {
+          if (!inv.company.iban || inv.company.iban === "SA4480000000608010167890" || inv.company.iban.includes("0000000000")) {
+            inv.company.iban = "SA2880000695608016045924";
+          }
+          if (!inv.company.bank_account_number || inv.company.bank_account_number.includes("0000000000")) {
+            inv.company.bank_account_number = "695000010006086045924";
+          }
+          if (!inv.company.bank_name_ar) {
+            inv.company.bank_name_ar = "مصرف الراجحي";
+          }
+        }
+        return inv;
+      });
     } catch {
       return [];
     }

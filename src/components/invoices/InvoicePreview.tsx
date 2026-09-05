@@ -60,6 +60,24 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({
       ? backgroundUrl
       : (settings?.invoice_background_url || "/images/invoice-bg.jpg");
 
+  // Official verified banking credentials
+  const OFFICIAL_IBAN = "SA2880000695608016045924";
+  const OFFICIAL_ACCOUNT_NUMBER = "695000010006086045924";
+  const OFFICIAL_BANK_NAME = "مصرف الراجحي";
+
+  // Guarantee official credentials override any legacy dummy placeholders
+  const effectiveIban =
+    comp.iban && comp.iban !== "SA4480000000608010167890" && !comp.iban.includes("0000000000")
+      ? comp.iban
+      : OFFICIAL_IBAN;
+
+  const effectiveAccountNumber =
+    comp.bank_account_number && !comp.bank_account_number.includes("0000000000")
+      ? comp.bank_account_number
+      : OFFICIAL_ACCOUNT_NUMBER;
+
+  const effectiveBankName = comp.bank_name_ar || OFFICIAL_BANK_NAME;
+
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
 
   // Generate ZATCA-compliant QR in real-time from available invoice data
@@ -498,20 +516,20 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({
           <div className="mt-3 p-2.5 px-4 bg-slate-50/90 rounded-xl border border-slate-200 text-xs sm:text-[12px] flex flex-wrap items-center justify-between gap-x-6 gap-y-1 text-slate-700 shadow-2xs">
             <div className="flex items-center gap-2 font-bold text-slate-900">
               <Building2 className="w-4 h-4 text-emerald-700 shrink-0" />
-              <span>بيانات الحساب البنكي ({comp.bank_name_ar || "مصرف الراجحي"}):</span>
+              <span>بيانات الحساب البنكي ({effectiveBankName}):</span>
             </div>
             <div className="flex flex-wrap items-center gap-x-5 sm:gap-x-6 gap-y-1">
               <div>
                 <span className="text-slate-500 font-medium">رقم الحساب: </span>
                 <span className="font-mono font-bold text-slate-900 select-all tracking-wider text-xs sm:text-[13px]">
-                  {comp.bank_account_number || "695000010006086045924"}
+                  {effectiveAccountNumber}
                 </span>
               </div>
               <span className="hidden sm:inline text-slate-300 font-bold">|</span>
               <div>
                 <span className="text-slate-500 font-medium">الآيبان (IBAN): </span>
                 <span className="font-mono font-bold text-slate-900 select-all tracking-wider text-xs sm:text-[13px]">
-                  {comp.iban || "SA2880000695608016045924"}
+                  {effectiveIban}
                 </span>
               </div>
             </div>
