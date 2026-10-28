@@ -24,6 +24,7 @@ import { ZatcaHub } from "./pages/ZatcaHub";
 import { Services } from "./pages/Services";
 import { Reports } from "./pages/Reports";
 import { Settings } from "./pages/Settings";
+import { SyncService } from "./services/syncService";
 
 export function AppContent() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -31,6 +32,13 @@ export function AppContent() {
   const [currentTab, setCurrentTab] = useState<NavigationTab>("dashboard");
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
+
+  // Automatically trigger cloud synchronization upon login
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      SyncService.syncAll().catch(console.warn);
+    }
+  }, [isAuthenticated]);
 
   const handleViewInvoice = (id: string) => {
     setSelectedInvoiceId(id);

@@ -1,8 +1,9 @@
-import React from "react";
-import { Menu, Globe, Shield, User, LogOut, Check, Bell } from "lucide-react";
+import React, { useState } from "react";
+import { Menu, Globe, Shield, User, LogOut, Check, Bell, RefreshCw, Cloud } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
+import { SyncService } from "../../services/syncService";
 
 interface NavbarProps {
   onOpenMobile: () => void;
@@ -12,7 +13,25 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ onOpenMobile, pageTitle }) => {
   const { language, setLanguage } = useLanguage();
   const { user, role, setRole, signOut } = useAuth();
-  const { info } = useToast();
+  const { info, success, warning } = useToast();
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleManualSync = async () => {
+    setIsSyncing(true);
+    info(language === "ar" ? "جاري مزامنة البيانات السحابية مع السيرفر..." : "Syncing data with cloud server...");
+    try {
+      const res = await SyncService.syncAll();
+      if (res.success) {
+        success(language === "ar" ? "تمت المزامنة بنجاح! تم تحديث كافة البيانات المشتركة." : "Data synchronized successfully!");
+      } else {
+        warning(res.message);
+      }
+    } catch (err: any) {
+      warning(err.message || "تعذر إتمام المزامنة");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const toggleLanguage = () => {
     const next = language === "ar" ? "en" : "ar";
@@ -75,6 +94,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenMobile, pageTitle }) => {
             {language === "ar" ? "محاسب" : "Accountant"}
           </button>
         </div>
+
+        {/* Cloud Sync Button */}
+        <button
+          onClick={handleManualSync}
+          disabled={isSyncing}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-all active:scale-[0.98] disabled:opacity-50"
+          title={language === "ar" ? "مزامنة البيانات بين الجوال والكمبيوتر" : "Sync between mobile and laptop"}
+        >
+          <RefreshCw className={`w-3.5 h-3.5 text-emerald-600 ${isSyncing ? "animate-spin" : ""}`} />
+          <span className="hidden sm:inline">{isSyncing ? (language === "ar" ? "جاري المزامنة..." : "Syncing...") : (language === "ar" ? "مزامنة سحابية" : "Cloud Sync")}</span>
+        </button>
 
         {/* Language Switcher */}
         <button
