@@ -24,23 +24,24 @@ interface AuthContextType {
   hasRole: (allowedRoles: UserRole[]) => boolean;
 }
 
-const defaultAdminUser: Profile = {
-  id: "u0000000-0000-0000-0000-000000000001",
-  email: "admin@alezz.sa",
-  full_name: "م / أحمد العز (المدير العام)",
-  role: "admin",
-  phone: "0506025022",
-  avatar_url: "",
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-};
+// NOTE: defaultAdminUser removed — no auto-login bypass allowed.
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<Profile | null>(() => {
+    // Only restore from localStorage if Supabase is NOT configured (offline mode).
+    // When Supabase IS configured we wait for the real session check in useEffect.
     const saved = localStorage.getItem("alezz_auth_user");
-    return saved ? JSON.parse(saved) : defaultAdminUser;
+    if (saved) {
+      try {
+        return JSON.parse(saved) as Profile;
+      } catch {
+        localStorage.removeItem("alezz_auth_user");
+      }
+    }
+    // No stored session → require login
+    return null;
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -86,9 +87,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.user && mounted) {
             await fetchUserProfile(session.user.id, session.user.email || "");
+          } else if (!session && mounted) {
+            // No valid Supabase session → clear any stale localStorage and force login
+            setUser(null);
+            localStorage.removeItem("alezz_auth_user");
           }
         } catch (err) {
           console.warn("Error checking auth session:", err);
+          // On error, be safe: clear state and force login
+          if (mounted) {
+            setUser(null);
+            localStorage.removeItem("alezz_auth_user");
+          }
         }
       }
       if (mounted) setIsLoading(false);
@@ -146,31 +156,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
       }
 
-      // Offline / Local fallback mode
-      const role: UserRole = email.includes("admin")
-        ? "admin"
-        : email.includes("view")
-        ? "viewer"
-        : "accountant";
-
-      const localUser: Profile = {
-        id: "u0000000-0000-0000-0000-000000000001",
-        email,
-        full_name:
-          role === "admin"
-            ? "م / أحمد العز (المدير العام)"
-            : role === "accountant"
-            ? "المحاسب المالي"
-            : "مستخدم مستعرض",
-        role,
-        phone: "0506025022",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      setUser(localUser);
-      localStorage.setItem("alezz_auth_user", JSON.stringify(localUser));
-      return { success: true };
+      // Supabase is not configured — reject login entirely for security.
+      // Do NOT allow any user to authenticate without a real Supabase session.
+      return { success: false, error: "خدمة المصادقة غير متاحة حالياً. يرجى التواصل مع المسؤول." };
     } catch (err) {
       const msg = err instanceof Error ? err.message : "فشل تسجيل الدخول";
       return { success: false, error: msg };

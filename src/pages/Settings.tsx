@@ -213,8 +213,8 @@ export const Settings: React.FC = () => {
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword.length < 6) {
-      warning("كلمة المرور يجب أن تتكون من 6 خانات على الأقل");
+    if (newPassword.length < 8) {
+      warning("كلمة المرور يجب أن تتكون من 8 خانات على الأقل");
       return;
     }
     if (newPassword !== confirmPassword) {

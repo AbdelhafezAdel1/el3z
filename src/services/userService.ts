@@ -4,36 +4,6 @@ import { AuditService } from "./audit";
 
 const USERS_STORAGE_KEY = "alezz_system_users";
 
-export const defaultUsers: Profile[] = [
-  {
-    id: "u0000000-0000-0000-0000-000000000001",
-    email: "admin@alezz.sa",
-    full_name: "م / أحمد العز (المدير العام)",
-    role: "admin",
-    phone: "0506025022",
-    created_at: "2026-01-01T08:00:00.000Z",
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "u0000000-0000-0000-0000-000000000002",
-    email: "accountant@alezz.sa",
-    full_name: "أ / فهد الشهري (المحاسب المالي)",
-    role: "accountant",
-    phone: "0551234567",
-    created_at: "2026-01-15T09:30:00.000Z",
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "u0000000-0000-0000-0000-000000000003",
-    email: "viewer@alezz.sa",
-    full_name: "م / سارة العتيبي (مستعرض تدقيق)",
-    role: "viewer",
-    phone: "0509876543",
-    created_at: "2026-02-01T10:00:00.000Z",
-    updated_at: new Date().toISOString(),
-  },
-];
-
 export class UserService {
   /**
    * Fetch all system users/profiles
@@ -46,24 +16,27 @@ export class UserService {
           .select("*")
           .order("created_at", { ascending: true });
 
-        if (!error && data && data.length > 0) {
+        if (!error && data) {
+          // Cache the real data
           localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(data));
           return data;
         }
       } catch (err) {
         console.warn("Supabase fetch users failed:", err);
+        // On error, try to return cached data
+        try {
+          const saved = localStorage.getItem(USERS_STORAGE_KEY);
+          if (saved) return JSON.parse(saved);
+        } catch {
+          // ignore
+        }
       }
+      // Supabase configured but returned error with no cache → return empty
+      return [];
     }
 
-    try {
-      const saved = localStorage.getItem(USERS_STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
-    } catch {
-      // ignore
-    }
-
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(defaultUsers));
-    return defaultUsers;
+    // Supabase not configured: return empty array (no fake users)
+    return [];
   }
 
   /**

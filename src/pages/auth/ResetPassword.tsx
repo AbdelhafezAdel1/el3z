@@ -27,8 +27,8 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({
     e.preventDefault();
     setErrorMessage("");
 
-    if (newPassword.length < 6) {
-      setErrorMessage("كلمة المرور يجب أن لا تقل عن 6 خانات");
+    if (newPassword.length < 8) {
+      setErrorMessage("كلمة المرور يجب أن لا تقل عن 8 خانات");
       return;
     }
     if (newPassword !== confirmPassword) {
