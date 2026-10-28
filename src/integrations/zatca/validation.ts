@@ -1,6 +1,6 @@
-import { Invoice } from "../../types/database";
-import { ZatcaValidationResult, ZatcaIssue } from "./types";
-import { validateSaudiVatNumber, validateSaudiCrNumber } from "../../lib/money";
+import { Invoice } from "../../types/database.ts";
+import { ZatcaValidationResult, ZatcaIssue } from "./types.ts";
+import { validateSaudiVatNumber, validateSaudiCrNumber } from "../../lib/money.ts";
 
 /**
  * Validates an invoice against ZATCA Electronic Invoicing requirements (Phase 1 & Phase 2).

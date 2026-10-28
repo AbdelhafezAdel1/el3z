@@ -40,7 +40,8 @@ export class UserService {
   }
 
   /**
-   * Create a new user profile
+   * Create a new user — registers in Supabase Auth AND inserts/upserts the profile row.
+   * Without the Auth step the user has no credentials and cannot sign in.
    */
   static async createUser(
     userData: {
@@ -51,55 +52,69 @@ export class UserService {
       password?: string;
     },
   ): Promise<Profile> {
-    const newUser: Profile = {
-      id: crypto.randomUUID(),
-      email: userData.email,
-      full_name: userData.full_name,
-      role: userData.role,
-      phone: userData.phone || "",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    // Immediate local persistence guarantee
-    const current = await this.getUsers();
-    const updated = [...current.filter((u) => u.id !== newUser.id), newUser];
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updated));
-
     if (isSupabaseConfigured) {
-      try {
-        const { data, error } = await supabase
-          .from("profiles")
-          .insert(newUser)
-          .select()
-          .single();
-
-        if (!error && data) {
-          const synced = [...current.filter((u) => u.id !== data.id), data];
-          localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(synced));
-          await AuditService.log({
-            action: "CREATE_USER",
-            entity_type: "user",
-            entity_id: data.id,
-            new_data: data,
-            metadata: { email: data.email, role: data.role },
-          });
-          return data;
-        }
-      } catch (err) {
-        console.warn("Supabase create user error:", err);
+      if (!userData.password) {
+        throw new Error("كلمة المرور مطلوبة لإنشاء حساب المستخدم");
       }
+
+      // Step 1: Create the auth account so the user can actually sign in.
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+        options: {
+          data: {
+            full_name: userData.full_name,
+            role: userData.role,
+          },
+        },
+      });
+
+      if (authError) {
+        throw new Error(authError.message);
+      }
+
+      const authUserId = authData.user?.id;
+      if (!authUserId) {
+        throw new Error("تعذر الحصول على معرف المستخدم من Supabase Auth");
+      }
+
+      // Step 2: Upsert the profile row with the real auth UUID.
+      const newProfile: Profile = {
+        id: authUserId,
+        email: userData.email,
+        full_name: userData.full_name,
+        role: userData.role,
+        phone: userData.phone || "",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .upsert(newProfile)
+        .select()
+        .single();
+
+      const savedProfile = !profileError && profileData ? profileData : newProfile;
+
+      // Sync local cache
+      const current = await this.getUsers();
+      const synced = [...current.filter((u) => u.id !== savedProfile.id), savedProfile];
+      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(synced));
+
+      await AuditService.log({
+        action: "CREATE_USER",
+        entity_type: "user",
+        entity_id: savedProfile.id,
+        new_data: savedProfile,
+        metadata: { email: savedProfile.email, role: savedProfile.role },
+      });
+
+      return savedProfile;
     }
 
-    await AuditService.log({
-      action: "CREATE_USER",
-      entity_type: "user",
-      entity_id: newUser.id,
-      new_data: newUser,
-      metadata: { email: newUser.email, role: newUser.role },
-    });
-
-    return newUser;
+    // Supabase not configured — no real auth possible.
+    throw new Error("خدمة المصادقة غير متاحة. يرجى ضبط إعدادات Supabase.");
   }
 
   /**

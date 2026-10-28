@@ -1,4 +1,4 @@
-import { Invoice } from "../../types/database";
+import { Invoice } from "../../types/database.ts";
 
 /**
  * Generates official ZATCA UBL 2.1 XML for Standard (0100000) and Simplified (0200000) Invoices.

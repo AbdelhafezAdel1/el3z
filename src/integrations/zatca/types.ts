@@ -1,4 +1,4 @@
-import { Invoice, ZatcaStatus } from "../../types/database";
+import { Invoice, ZatcaStatus } from "../../types/database.ts";
 
 export type ZatcaEnvironment = "sandbox" | "simulation" | "production";
 export type ZatcaMode = "test" | "mock" | "production";

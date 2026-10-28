@@ -461,6 +461,10 @@ export const Settings: React.FC = () => {
       warning("الاسم والبريد الإلكتروني مطلوبان");
       return;
     }
+    if (!newUserForm.password || newUserForm.password.length < 8) {
+      warning("كلمة المرور مطلوبة ويجب أن تكون 8 خانات على الأقل");
+      return;
+    }
     setIsSaving(true);
     try {
       await UserService.createUser(newUserForm);
@@ -2179,6 +2183,25 @@ export const Settings: React.FC = () => {
                   placeholder="0500000000"
                 />
               </div>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                كلمة المرور <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="password"
+                required
+                minLength={8}
+                value={newUserForm.password}
+                onChange={(e) =>
+                  setNewUserForm({ ...newUserForm, password: e.target.value })
+                }
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm font-mono focus:border-emerald-500"
+                placeholder="8 خانات على الأقل"
+              />
+              <p className="text-[11px] text-slate-400 mt-1">
+                يستخدمها المستخدم لتسجيل الدخول — احرص على إبلاغه بها
+              </p>
             </div>
             <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
               <button

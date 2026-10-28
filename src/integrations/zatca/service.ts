@@ -1,4 +1,4 @@
-import { Invoice, ZatcaStatus, ZatcaSubmission } from "../../types/database";
+import { Invoice, ZatcaStatus, ZatcaSubmission } from "../../types/database.ts";
 import {
   ZatcaValidationResult,
   ZatcaQrFields,
@@ -6,11 +6,11 @@ import {
   ZatcaSubmissionOptions,
   ZatcaSubmissionResult,
   ZatcaSubmissionStatusResult,
-} from "./types";
-import { validateInvoice } from "./validation";
-import { generateInvoiceXML } from "./xml";
-import { generateInvoiceHash } from "./hash";
-import { generateQRCode } from "./qr";
+} from "./types.ts";
+import { validateInvoice } from "./validation.ts";
+import { generateInvoiceXML } from "./xml.ts";
+import { generateInvoiceHash } from "./hash.ts";
+import { generateQRCode } from "./qr.ts";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 import { LocalStore } from "../../services/storage/localStore";
 import { AuditService } from "../../services/audit";
