@@ -126,8 +126,7 @@ export class InvoiceService {
     const issueDate = input.issueDate || now.toISOString().split("T")[0];
     const issueTime = now.toTimeString().split(" ")[0];
 
-    const realCompanyId =
-      company?.id && !company.id.startsWith("a0000000") ? company.id : defaultCompany.id;
+    const realCompanyId = company?.id || defaultCompany.id;
 
     const newInvoice: Invoice = {
       id: invoiceId,
@@ -201,9 +200,7 @@ export class InvoiceService {
           payment_terms: newInvoice.payment_terms || null,
         };
 
-        if (company?.id && !company.id.startsWith("a0000000")) {
-          invPayload.company_id = company.id;
-        }
+        invPayload.company_id = realCompanyId;
 
         const { data: invData, error: invError } = await supabase
           .from("invoices")

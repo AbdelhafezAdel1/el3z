@@ -86,8 +86,7 @@ export class CustomerService {
   ): Promise<Customer> {
     // Resolve valid company ID
     const comp = await CompanyService.getCompany();
-    const resolvedCompanyId =
-      customerData.company_id || (comp?.id && !comp.id.startsWith("a0000000") ? comp.id : defaultCompany.id);
+    const resolvedCompanyId = customerData.company_id || comp?.id || defaultCompany.id;
 
     const newCustomer: Customer = {
       ...customerData,
@@ -125,10 +124,7 @@ export class CustomerService {
           is_active: newCustomer.is_active,
         };
 
-        // If we have a valid company in database, attach company_id
-        if (comp?.id && !comp.id.startsWith("a0000000")) {
-          payload.company_id = comp.id;
-        }
+        payload.company_id = resolvedCompanyId;
 
         const { data, error } = await supabase
           .from("customers")

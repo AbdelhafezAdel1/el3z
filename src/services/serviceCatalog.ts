@@ -37,8 +37,7 @@ export class ServiceCatalog {
     },
   ): Promise<ServiceItem> {
     const comp = await CompanyService.getCompany();
-    const resolvedCompanyId =
-      serviceData.company_id || (comp?.id && !comp.id.startsWith("a0000000") ? comp.id : defaultCompany.id);
+    const resolvedCompanyId = serviceData.company_id || comp?.id || defaultCompany.id;
 
     const newService: ServiceItem = {
       ...serviceData,
@@ -68,9 +67,7 @@ export class ServiceCatalog {
           is_active: newService.is_active ?? true,
         };
 
-        if (comp?.id && !comp.id.startsWith("a0000000")) {
-          payload.company_id = comp.id;
-        }
+        payload.company_id = resolvedCompanyId;
 
         const { data, error } = await supabase
           .from("services")

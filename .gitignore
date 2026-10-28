@@ -36,6 +36,7 @@ supabase/.temp/
 
 # Agent files
 .agents/
+scratch/
 
 # ZATCA private keys and onboarding secrets
 zatca_onboarding/private-key.pem
