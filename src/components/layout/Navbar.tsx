@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { Menu, Globe, Shield, User, LogOut, Check, Bell, RefreshCw, Cloud } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Menu, Globe, Shield, User, LogOut, Check, Bell, RefreshCw, Cloud, WifiOff } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 import { SyncService } from "../../services/syncService";
+import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 
 interface NavbarProps {
   onOpenMobile: () => void;
@@ -15,6 +16,23 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenMobile, pageTitle }) => {
   const { user, role, setRole, signOut } = useAuth();
   const { info, success, warning } = useToast();
   const [isSyncing, setIsSyncing] = useState(false);
+  const [cloudStatus, setCloudStatus] = useState<"checking" | "connected" | "disconnected">("checking");
+
+  // Check real Supabase connectivity on mount
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setCloudStatus("disconnected");
+      return;
+    }
+    (async () => {
+      try {
+        const { error } = await supabase.from("companies").select("id").limit(1);
+        setCloudStatus(error ? "disconnected" : "connected");
+      } catch {
+        setCloudStatus("disconnected");
+      }
+    })();
+  }, []);
 
   const handleManualSync = async () => {
     setIsSyncing(true);
@@ -22,11 +40,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenMobile, pageTitle }) => {
     try {
       const res = await SyncService.syncAll();
       if (res.success) {
+        setCloudStatus("connected");
         success(language === "ar" ? "تمت المزامنة بنجاح! تم تحديث كافة البيانات المشتركة." : "Data synchronized successfully!");
       } else {
+        setCloudStatus("disconnected");
         warning(res.message);
       }
     } catch (err: any) {
+      setCloudStatus("disconnected");
       warning(err.message || "تعذر إتمام المزامنة");
     } finally {
       setIsSyncing(false);
@@ -59,10 +80,24 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenMobile, pageTitle }) => {
             {pageTitle}
           </h2>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              {language === "ar" ? "الربط السحابي متصل" : "Cloud Connected"}
-            </span>
+            {cloudStatus === "connected" && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                {language === "ar" ? "الربط السحابي متصل" : "Cloud Connected"}
+              </span>
+            )}
+            {cloudStatus === "disconnected" && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200/60">
+                <WifiOff className="w-3 h-3" />
+                {language === "ar" ? "غير متصل بالسحابة" : "Cloud Offline"}
+              </span>
+            )}
+            {cloudStatus === "checking" && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200/60">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
+                {language === "ar" ? "جاري التحقق..." : "Checking..."}
+              </span>
+            )}
           </div>
         </div>
       </div>
