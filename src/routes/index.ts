@@ -6,12 +6,14 @@ import { UserRole } from "@/types/database";
 
 export type NavigationTab =
   | "dashboard"
-  | "customers"
   | "create_invoice"
-  | "invoice_history"
-  | "tax_records"
-  | "zatca"
+  | "customers"
   | "services"
+  | "invoice_history"
+  | "vouchers"
+  | "zatca"
+  | "tax_records"
+  | "submitted_tax_report"
   | "reports"
   | "settings";
 
@@ -29,6 +31,7 @@ export interface RouteDefinition {
   allowedRoles: UserRole[];
   /** Whether this route is visible in the sidebar */
   showInSidebar: boolean;
+  badge?: string;
 }
 
 export const ROUTES: RouteDefinition[] = [
@@ -41,56 +44,76 @@ export const ROUTES: RouteDefinition[] = [
     showInSidebar: true,
   },
   {
-    tab: "customers",
-    labelAr: "العملاء",
-    labelEn: "Customers",
-    icon: "Users",
-    allowedRoles: [],
-    showInSidebar: true,
-  },
-  {
     tab: "create_invoice",
     labelAr: "إنشاء فاتورة",
     labelEn: "Create Invoice",
     icon: "FilePlus",
     allowedRoles: [],
     showInSidebar: true,
+    badge: "جديد",
   },
   {
-    tab: "invoice_history",
-    labelAr: "الفواتير",
-    labelEn: "Invoices",
-    icon: "History",
+    tab: "customers",
+    labelAr: "إضافة عميل / العملاء",
+    labelEn: "Customers",
+    icon: "Users",
     allowedRoles: [],
     showInSidebar: true,
   },
   {
-    tab: "tax_records",
-    labelAr: "السجلات الضريبية",
-    labelEn: "Tax Records",
-    icon: "FileSpreadsheet",
-    allowedRoles: ["admin", "accountant"],
-    showInSidebar: true,
-  },
-  {
-    tab: "zatca",
-    labelAr: "بوابة زاتكا",
-    labelEn: "ZATCA Hub",
-    icon: "ShieldCheck",
-    allowedRoles: ["admin", "accountant"],
-    showInSidebar: true,
-  },
-  {
     tab: "services",
-    labelAr: "الخدمات",
+    labelAr: "إضافة خدمة / الخدمات",
     labelEn: "Services",
     icon: "Wrench",
     allowedRoles: [],
     showInSidebar: true,
   },
   {
+    tab: "invoice_history",
+    labelAr: "سجل الفواتير",
+    labelEn: "Invoices Log",
+    icon: "History",
+    allowedRoles: [],
+    showInSidebar: true,
+  },
+  {
+    tab: "vouchers",
+    labelAr: "سندات قبض وصرف",
+    labelEn: "Receipt & Payment Vouchers",
+    icon: "Receipt",
+    allowedRoles: [],
+    showInSidebar: true,
+    badge: "مالية",
+  },
+  {
+    tab: "zatca",
+    labelAr: "رفع الضريبة (ZATCA)",
+    labelEn: "Submit Tax / ZATCA",
+    icon: "ShieldCheck",
+    allowedRoles: ["admin", "accountant"],
+    showInSidebar: true,
+    badge: "ZATCA",
+  },
+  {
+    tab: "tax_records",
+    labelAr: "سجل الضريبي",
+    labelEn: "Tax Records",
+    icon: "FileSpreadsheet",
+    allowedRoles: ["admin", "accountant"],
+    showInSidebar: true,
+  },
+  {
+    tab: "submitted_tax_report",
+    labelAr: "كشف الضريبة على الفواتير المرفوعة",
+    labelEn: "Submitted Invoices Tax Report",
+    icon: "FileCheck",
+    allowedRoles: ["admin", "accountant"],
+    showInSidebar: true,
+    badge: "معتمد",
+  },
+  {
     tab: "reports",
-    labelAr: "التقارير",
+    labelAr: "التقارير المالية",
     labelEn: "Reports",
     icon: "BarChart3",
     allowedRoles: [],

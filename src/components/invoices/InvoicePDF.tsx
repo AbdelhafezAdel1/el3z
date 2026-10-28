@@ -183,20 +183,28 @@ export async function printInvoice(
             box-sizing: border-box;
           }
           html, body {
-            width: 100%;
-            height: 100%;
+            width: 210mm;
+            height: 297mm;
+            max-width: 210mm;
+            max-height: 297mm;
             margin: 0 !important;
             padding: 0 !important;
             background: #ffffff !important;
-            overflow: hidden;
+            overflow: hidden !important;
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
           }
           .invoice-img {
-            width: 100%;
-            height: 100%;
-            object-fit: fill;
+            width: 210mm;
+            height: 296.5mm;
+            max-width: 210mm;
+            max-height: 296.5mm;
+            object-fit: contain;
             display: block;
-            margin: 0;
+            margin: 0 auto;
             padding: 0;
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
           }
         </style>
       </head>

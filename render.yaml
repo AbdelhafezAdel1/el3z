@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: alezz-invoicing-zatca
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_SUPABASE_URL
+        value: https://fxqierhxyzpjbwtmpahq.supabase.co
+      - key: VITE_SUPABASE_ANON_KEY
+        value: sb_publishable_iRRUMfcHQJ0JaaYG9pTtzw_7aziLHRL
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        value: sb_publishable_iRRUMfcHQJ0JaaYG9pTtzw_7aziLHRL

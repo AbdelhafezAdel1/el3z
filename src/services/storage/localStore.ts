@@ -7,6 +7,7 @@ import {
   AuditLog,
   ZatcaSubmission,
   TaxRecord,
+  Voucher,
 } from "../../types/database";
 
 const STORAGE_KEYS = {
@@ -19,6 +20,7 @@ const STORAGE_KEYS = {
   SUBMISSIONS: "alezz_zatca_submissions",
   TAX_RECORDS: "alezz_tax_records",
   SEQUENCE: "alezz_invoice_sequence",
+  VOUCHERS: "alezz_vouchers",
 };
 
 // Default Company
@@ -150,6 +152,37 @@ export const defaultCustomers: Customer[] = [
   },
 ];
 
+export const defaultVouchers: Voucher[] = [
+  {
+    id: "v0000000-0000-0000-0000-000000000001",
+    voucher_number: "RV-2026-000001",
+    type: "receipt",
+    date: new Date().toISOString().split("T")[0],
+    amount: 5000.0,
+    customer_id: "c0000000-0000-0000-0000-000000000001",
+    customer_name: "مؤسسة النخبة العقارية للتطوير",
+    payment_method: "bank_transfer",
+    reference_number: "TRX-9884210",
+    invoice_number: "INV-2026-000001",
+    description: "دفعة مقدمة تحت الحساب عن أعمال تركيب أبواب",
+    notes: "تحويل على مصرف الراجحي",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "v0000000-0000-0000-0000-000000000002",
+    voucher_number: "PV-2026-000001",
+    type: "payment",
+    date: new Date().toISOString().split("T")[0],
+    amount: 1200.0,
+    customer_name: "شركة الإمدادات الحديثة لمواد البناء",
+    payment_method: "bank_transfer",
+    reference_number: "PO-7741",
+    description: "شراء مفصلات ومقابض أبواب ألمانية",
+    notes: "سداد فاتورة مشتريات تشغيلية",
+    created_at: new Date().toISOString(),
+  },
+];
+
 // Initialize Storage if empty
 export function initLocalStorage(): void {
   if (!localStorage.getItem(STORAGE_KEYS.COMPANY)) {
@@ -184,6 +217,9 @@ export function initLocalStorage(): void {
   }
   if (!localStorage.getItem(STORAGE_KEYS.TAX_RECORDS)) {
     localStorage.setItem(STORAGE_KEYS.TAX_RECORDS, JSON.stringify([]));
+  }
+  if (!localStorage.getItem(STORAGE_KEYS.VOUCHERS)) {
+    localStorage.setItem(STORAGE_KEYS.VOUCHERS, JSON.stringify(defaultVouchers));
   }
   if (!localStorage.getItem(STORAGE_KEYS.SEQUENCE)) {
     localStorage.setItem(STORAGE_KEYS.SEQUENCE, "100");
@@ -315,5 +351,17 @@ export const LocalStore = {
   },
   saveTaxRecords(records: TaxRecord[]): void {
     localStorage.setItem(STORAGE_KEYS.TAX_RECORDS, JSON.stringify(records));
+  },
+  getVouchers(): Voucher[] {
+    initLocalStorage();
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.VOUCHERS);
+      return data ? JSON.parse(data) : defaultVouchers;
+    } catch {
+      return defaultVouchers;
+    }
+  },
+  saveVouchers(vouchers: Voucher[]): void {
+    localStorage.setItem(STORAGE_KEYS.VOUCHERS, JSON.stringify(vouchers));
   },
 };

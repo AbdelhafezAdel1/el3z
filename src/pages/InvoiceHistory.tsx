@@ -91,14 +91,14 @@ const InlinePdfModal: React.FC<{
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs"
           >
             <Printer className="w-3.5 h-3.5" />
-            <span>طباعة</span>
+            <span>طباعة A4 (صفحة واحدة)</span>
           </button>
           <button
             onClick={onDownload}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-xs"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>حفظ PDF</span>
+            <span>تنزيل PDF</span>
           </button>
           <button
             onClick={onClose}

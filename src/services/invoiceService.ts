@@ -345,8 +345,18 @@ export class InvoiceService {
       ...existing,
       zatca_status: submissionResult.status,
       invoice_hash: submissionResult.invoiceHash,
+      zatca_uuid: submissionResult.submissionId,
       qr_code_data: submissionResult.qrBase64,
       ubl_xml: submissionResult.xmlPayload,
+      submitted_snapshot: submissionResult.success
+        ? {
+            ...existing,
+            invoice_hash: submissionResult.invoiceHash,
+            zatca_uuid: submissionResult.submissionId,
+            qr_code_data: submissionResult.qrBase64,
+            submitted_at: new Date().toISOString(),
+          }
+        : existing.submitted_snapshot,
       status:
         submissionResult.success && existing.status === "draft"
           ? "issued"

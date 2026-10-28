@@ -11,21 +11,15 @@ import {
   Settings,
   X,
   Building2,
-  ExternalLink,
+  Receipt,
+  FileCheck,
+  PlusCircle,
 } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AuthContext";
+import { NavigationTab } from "../../routes";
 
-export type NavigationTab =
-  | "dashboard"
-  | "customers"
-  | "create_invoice"
-  | "invoice_history"
-  | "tax_records"
-  | "zatca"
-  | "services"
-  | "reports"
-  | "settings";
+export type { NavigationTab };
 
 interface SidebarProps {
   currentTab: NavigationTab;
@@ -40,7 +34,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpenMobile,
   onCloseMobile,
 }) => {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const { role } = useAuth();
 
   const navItems: Array<{
@@ -49,52 +43,65 @@ export const Sidebar: React.FC<SidebarProps> = ({
     icon: React.ReactNode;
     badge?: string;
     adminOnly?: boolean;
+    section?: string;
   }> = [
     {
       id: "dashboard",
-      label: t("nav.dashboard"),
+      label: "لوحة التحكم",
       icon: <LayoutDashboard className="w-5 h-5" />,
     },
     {
-      id: "customers",
-      label: t("nav.customers"),
-      icon: <Users className="w-5 h-5" />,
-    },
-    {
       id: "create_invoice",
-      label: t("nav.create_invoice"),
-      icon: <FilePlus className="w-5 h-5 text-emerald-500" />,
+      label: "إنشاء فاتورة",
+      icon: <FilePlus className="w-5 h-5 text-emerald-400" />,
       badge: "جديد",
     },
     {
-      id: "invoice_history",
-      label: t("nav.invoice_history"),
-      icon: <History className="w-5 h-5" />,
-    },
-    {
-      id: "tax_records",
-      label: t("nav.tax_records"),
-      icon: <FileSpreadsheet className="w-5 h-5" />,
-    },
-    {
-      id: "zatca",
-      label: t("nav.zatca"),
-      icon: <ShieldCheck className="w-5 h-5 text-zatca-gold" />,
-      badge: "ZATCA",
+      id: "customers",
+      label: "إضافة عميل / العملاء",
+      icon: <Users className="w-5 h-5" />,
     },
     {
       id: "services",
-      label: t("nav.services"),
+      label: "إضافة خدمة / الخدمات",
       icon: <Wrench className="w-5 h-5" />,
     },
     {
+      id: "invoice_history",
+      label: "سجل الفواتير",
+      icon: <History className="w-5 h-5" />,
+    },
+    {
+      id: "vouchers",
+      label: "سندات قبض وصرف",
+      icon: <Receipt className="w-5 h-5 text-amber-400" />,
+      badge: "مالية",
+    },
+    {
+      id: "zatca",
+      label: "رفع الضريبة (ZATCA)",
+      icon: <ShieldCheck className="w-5 h-5 text-emerald-400" />,
+      badge: "ZATCA",
+    },
+    {
+      id: "tax_records",
+      label: "سجل الضريبي",
+      icon: <FileSpreadsheet className="w-5 h-5" />,
+    },
+    {
+      id: "submitted_tax_report",
+      label: "كشف الفواتير المرفوعة",
+      icon: <FileCheck className="w-5 h-5 text-teal-400" />,
+      badge: "معتمد",
+    },
+    {
       id: "reports",
-      label: t("nav.reports"),
+      label: "التقارير المالية",
       icon: <BarChart3 className="w-5 h-5" />,
     },
     {
       id: "settings",
-      label: t("nav.settings"),
+      label: "الإعدادات",
       icon: <Settings className="w-5 h-5" />,
       adminOnly: true,
     },
@@ -145,9 +152,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onSelectTab(item.id);
                 if (isOpenMobile) onCloseMobile();
               }}
-              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-xs sm:text-sm transition-all duration-200 ${
                 isActive
-                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 font-semibold"
+                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 font-bold"
                   : "text-slate-300 hover:bg-slate-800/80 hover:text-white"
               }`}
             >
@@ -162,9 +169,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                     item.badge === "ZATCA"
                       ? "bg-amber-400/20 text-amber-300 border border-amber-400/30"
+                      : item.badge === "معتمد"
+                      ? "bg-teal-400/20 text-teal-300 border border-teal-400/30"
                       : isActive
-                        ? "bg-white/20 text-white"
-                        : "bg-emerald-950 text-emerald-300 border border-emerald-800"
+                      ? "bg-white/20 text-white"
+                      : "bg-emerald-950 text-emerald-300 border border-emerald-800"
                   }`}
                 >
                   {item.badge}
@@ -180,15 +189,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex items-center justify-between mb-2">
           <span className="font-semibold text-white flex items-center gap-1.5">
             <Building2 className="w-3.5 h-3.5 text-emerald-400" />
-            شركة العز للمقاولات
+            مؤسسة رند العز للمقاولات
           </span>
           <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono">
-            CR: 1010789456
+            CR: 2051233487
           </span>
         </div>
         <p className="text-slate-400 text-[11px] leading-relaxed">
           الرقم الضريبي:{" "}
-          <span className="font-mono text-slate-300">310123456700003</span>
+          <span className="font-mono text-slate-300 font-bold">310814787400003</span>
         </p>
       </div>
     </div>

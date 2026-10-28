@@ -18,6 +18,7 @@ import {
 import { CustomerModal } from "../components/customers/CustomerModal";
 import { CustomerFormData } from "../validation/customerSchema";
 import { InvoicePreview } from "../components/invoices/InvoicePreview";
+import { downloadInvoicePDF, printInvoice } from "../components/invoices/InvoicePDF";
 import { useToast } from "../contexts/ToastContext";
 import { NavigationTab } from "../routes";
 import {
@@ -45,6 +46,8 @@ import {
   HelpCircle,
   Clock,
   ArrowRight,
+  Printer,
+  Download,
 } from "lucide-react";
 
 interface CreateInvoiceProps {
@@ -1061,10 +1064,35 @@ export const CreateInvoice: React.FC<CreateInvoiceProps> = ({
               />
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => printInvoice("invoice-document-render")}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-colors"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>طباعة A4 صفحة واحدة</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const { success: ok } = await downloadInvoicePDF(previewInvoiceData as any);
+                    if (ok) {
+                      success("تم تنزيل الفاتورة بصيغة PDF بنجاح");
+                    }
+                  }}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs shadow-xs transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>تنزيل PDF</span>
+                </button>
+              </div>
+
               <button
+                type="button"
                 onClick={() => setIsPreviewOpen(false)}
-                className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 transition-colors"
+                className="px-5 py-2 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 transition-colors"
               >
                 إغلاق المعاينة
               </button>

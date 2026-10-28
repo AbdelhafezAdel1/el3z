@@ -18,6 +18,8 @@ import { CreateInvoice } from "./pages/CreateInvoice";
 import { InvoiceHistory } from "./pages/InvoiceHistory";
 import { InvoiceDetails } from "./pages/InvoiceDetails";
 import { TaxRecords } from "./pages/TaxRecords";
+import { SubmittedTaxReport } from "./pages/SubmittedTaxReport";
+import { Vouchers } from "./pages/Vouchers";
 import { ZatcaHub } from "./pages/ZatcaHub";
 import { Services } from "./pages/Services";
 import { Reports } from "./pages/Reports";
@@ -125,6 +127,18 @@ export function AppContent() {
               onViewInvoice={handleViewInvoice}
               onEditInvoice={handleEditInvoice}
             />
+          )}
+          {currentTab === "vouchers" && <Vouchers />}
+          {currentTab === "submitted_tax_report" && (
+            <ProtectedRoute
+              allowedRoles={["admin", "accountant"]}
+              onNavigateHome={() => handleNavigate("dashboard")}
+            >
+              <SubmittedTaxReport
+                onNavigate={handleNavigate}
+                onViewInvoice={handleViewInvoice}
+              />
+            </ProtectedRoute>
           )}
           {currentTab === "tax_records" && (
             <ProtectedRoute

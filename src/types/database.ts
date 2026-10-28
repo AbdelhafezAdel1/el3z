@@ -167,6 +167,9 @@ export interface Invoice {
   created_at: string;
   updated_at: string;
 
+  // Snapshot of invoice at the exact time it was submitted to tax authority
+  submitted_snapshot?: any;
+
   // Joins
   customer?: Customer;
   items?: InvoiceItem[];
@@ -246,4 +249,26 @@ export interface AuditLog {
   user_agent?: string;
   created_at: string;
 }
+
+export type VoucherType = "receipt" | "payment"; // receipt = سند قبض, payment = سند صرف
+export type PaymentMode = "cash" | "bank_transfer" | "cheque" | "card";
+
+export interface Voucher {
+  id: string;
+  voucher_number: string; // e.g. RV-2026-000001 or PV-2026-000001
+  type: VoucherType;
+  date: string;
+  amount: number;
+  customer_id?: string;
+  customer_name: string; // Recipient or Payer name
+  payment_method: PaymentMode;
+  reference_number?: string; // Check number, transfer ref, invoice ref
+  invoice_id?: string;
+  invoice_number?: string;
+  description: string; // البيان / السبب
+  notes?: string;
+  created_at: string;
+  created_by?: string;
+}
+
 

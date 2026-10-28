@@ -234,21 +234,21 @@ export const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({
           {/* Print Button */}
           <button
             onClick={handlePrint}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition-colors"
-            title="طباعة الفاتورة بمقاس A4"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-slate-800 hover:bg-slate-100 font-bold text-xs transition-colors shadow-2xs"
+            title="طباعة الفاتورة بمقاس A4 صفحة واحدة"
           >
-            <Printer className="w-4 h-4 text-slate-600" />
-            <span>طباعة</span>
+            <Printer className="w-4 h-4 text-slate-700" />
+            <span>طباعة A4 (صفحة واحدة)</span>
           </button>
 
           {/* Save PDF Button */}
           <button
             onClick={handleDownloadPDF}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition-all"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-md transition-all"
             title="حفظ وتصدير الفاتورة كملف PDF"
           >
             <Download className="w-4 h-4" />
-            <span>حفظ PDF</span>
+            <span>تنزيل PDF</span>
           </button>
 
           {/* Submit to ZATCA Button */}

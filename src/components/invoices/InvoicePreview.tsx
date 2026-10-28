@@ -168,8 +168,8 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({
   return (
     <div
       id="invoice-document-render"
-      className={`relative w-full max-w-[840px] min-h-[1188px] bg-white text-slate-800 shadow-xl rounded-2xl border border-slate-200 text-xs sm:text-[13px] flex flex-col justify-between ${
-        bgImage ? "px-8 sm:px-12 pt-28 pb-10" : "p-6 sm:p-9"
+      className={`relative w-full max-w-[800px] min-h-[1050px] bg-white text-slate-800 shadow-xl rounded-2xl border border-slate-200 text-xs sm:text-[13px] flex flex-col justify-between ${
+        bgImage ? "px-8 sm:px-10 pt-24 pb-6" : "p-5 sm:p-7"
       } ${className}`}
       style={{
         backgroundImage: bgImage ? `url(${bgImage})` : undefined,
