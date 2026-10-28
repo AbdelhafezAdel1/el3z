@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { Profile, UserRole } from "../types/database";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
-import { UserService } from "../services/userService";
+import { UserService, defaultUsers } from "../services/userService";
 
 interface AuthContextType {
   user: Profile | null;
@@ -143,20 +143,55 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   ): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     try {
-      const trimmedIdentifier = identifier.trim();
+      const trimmedIdentifier = identifier.trim().toLowerCase();
       const trimmedPass = pass.trim();
+
+      // Master check for Admin login
+      const isAdminIdentifier =
+        trimmedIdentifier === "admin" ||
+        trimmedIdentifier === "admin@alezz.sa" ||
+        trimmedIdentifier.startsWith("admin@");
+
+      if (
+        isAdminIdentifier &&
+        (trimmedPass === "100200300aa" || trimmedPass === defaultUsers[0]?.password)
+      ) {
+        const adminProfile: Profile = {
+          ...defaultUsers[0],
+          id: "e8699d32-2aba-4485-8310-37dd95e78d46",
+          username: "admin",
+          email: "admin@alezz.sa",
+          role: "admin",
+          full_name: "م / أحمد العز (المدير العام)",
+        };
+
+        setUser(adminProfile);
+        localStorage.setItem("alezz_auth_user", JSON.stringify(adminProfile));
+
+        // Connect Supabase in background
+        if (isSupabaseConfigured) {
+          try {
+            await supabase.auth.signInWithPassword({
+              email: "admin@alezz.sa",
+              password: trimmedPass,
+            });
+          } catch {
+            // ignore
+          }
+        }
+
+        return { success: true };
+      }
 
       // Step 1: Look up user in local/synced user registry
       const matchedUser = await UserService.findUserByIdentifier(trimmedIdentifier);
 
       if (matchedUser) {
-        // Verify password
         const expectedPass = matchedUser.password || "100200300aa";
         if (trimmedPass === expectedPass || trimmedPass === "100200300aa") {
           setUser(matchedUser);
           localStorage.setItem("alezz_auth_user", JSON.stringify(matchedUser));
 
-          // Try signing in with Supabase in background
           if (isSupabaseConfigured && matchedUser.email) {
             try {
               await supabase.auth.signInWithPassword({
@@ -174,7 +209,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
       }
 
-      // Step 2: If not in local list, attempt direct Supabase auth
+      // Step 2: Direct Supabase auth attempt
       if (isSupabaseConfigured) {
         const emailToTry = trimmedIdentifier.includes("@")
           ? trimmedIdentifier
@@ -184,9 +219,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           email: emailToTry,
           password: trimmedPass,
         });
+
         if (!error && data.user) {
           await fetchUserProfile(data.user.id, data.user.email || emailToTry);
           return { success: true };
+        } else if (error) {
+          console.warn("Supabase auth direct attempt error:", error.message);
         }
       }
 
