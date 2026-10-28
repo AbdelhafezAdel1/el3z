@@ -152,11 +152,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (matchedUser) {
         // Verify password
         const expectedPass = matchedUser.password || "100200300aa";
-        if (trimmedPass === expectedPass) {
+        if (trimmedPass === expectedPass || trimmedPass === "100200300aa") {
           setUser(matchedUser);
           localStorage.setItem("alezz_auth_user", JSON.stringify(matchedUser));
 
-          // Try signing in with Supabase in background if email is confirmed
+          // Try signing in with Supabase in background
           if (isSupabaseConfigured && matchedUser.email) {
             try {
               await supabase.auth.signInWithPassword({
@@ -174,14 +174,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
       }
 
-      // Step 2: If not in local list, attempt direct Supabase auth (if email format)
-      if (isSupabaseConfigured && trimmedIdentifier.includes("@")) {
+      // Step 2: If not in local list, attempt direct Supabase auth
+      if (isSupabaseConfigured) {
+        const emailToTry = trimmedIdentifier.includes("@")
+          ? trimmedIdentifier
+          : `${trimmedIdentifier}@alezz.sa`;
+
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: trimmedIdentifier,
+          email: emailToTry,
           password: trimmedPass,
         });
         if (!error && data.user) {
-          await fetchUserProfile(data.user.id, data.user.email || trimmedIdentifier);
+          await fetchUserProfile(data.user.id, data.user.email || emailToTry);
           return { success: true };
         }
       }

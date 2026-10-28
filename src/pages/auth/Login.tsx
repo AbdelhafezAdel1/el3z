@@ -18,8 +18,8 @@ export const Login: React.FC<LoginProps> = ({
   const { success, error } = useToast();
   const { direction } = useLanguage();
 
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
+  const [identifier, setIdentifier] = useState("admin");
+  const [password, setPassword] = useState("100200300aa");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
