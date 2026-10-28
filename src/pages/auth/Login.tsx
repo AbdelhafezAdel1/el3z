@@ -3,7 +3,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { AuthLayout } from "../../layouts/AuthLayout";
-import { Lock, Mail, Eye, EyeOff, LogIn } from "lucide-react";
+import { Lock, User, Eye, EyeOff, LogIn } from "lucide-react";
 
 interface LoginProps {
   onNavigateToForgotPassword?: () => void;
@@ -18,7 +18,7 @@ export const Login: React.FC<LoginProps> = ({
   const { success, error } = useToast();
   const { direction } = useLanguage();
 
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -27,8 +27,8 @@ export const Login: React.FC<LoginProps> = ({
     e.preventDefault();
     setErrorMessage("");
 
-    if (!email.trim()) {
-      setErrorMessage("يرجى إدخال البريد الإلكتروني");
+    if (!identifier.trim()) {
+      setErrorMessage("يرجى إدخال اسم المستخدم أو البريد الإلكتروني");
       return;
     }
     if (!password) {
@@ -36,7 +36,7 @@ export const Login: React.FC<LoginProps> = ({
       return;
     }
 
-    const res = await signIn(email.trim(), password);
+    const res = await signIn(identifier.trim(), password);
     if (res.success) {
       success("تم تسجيل الدخول بنجاح");
       onLoginSuccess?.();
@@ -59,7 +59,7 @@ export const Login: React.FC<LoginProps> = ({
             تسجيل الدخول
           </h2>
           <p className="text-xs text-slate-500">
-            أدخل بريدك الإلكتروني وكلمة المرور للمتابعة إلى لوحة التحكم
+            أدخل اسم المستخدم أو البريد الإلكتروني وكلمة المرور للمتابعة
           </p>
         </div>
 
@@ -70,21 +70,21 @@ export const Login: React.FC<LoginProps> = ({
           </div>
         )}
 
-        {/* Email Field */}
+        {/* Username / Email Field */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-            البريد الإلكتروني
+            اسم المستخدم أو البريد الإلكتروني
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none text-slate-400">
-              <Mail className="w-4 h-4" />
+              <User className="w-4 h-4" />
             </div>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@alezz.sa"
-              className="w-full ps-9 pe-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-all"
+              type="text"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              placeholder="admin أو user@alezz.sa"
+              className="w-full ps-9 pe-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-all font-sans"
               required
             />
           </div>

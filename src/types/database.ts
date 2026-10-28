@@ -22,7 +22,9 @@ export type InvoiceType =
 
 export interface Profile {
   id: string;
+  username?: string;
   email: string;
+  password?: string;
   full_name: string;
   role: UserRole;
   phone?: string;

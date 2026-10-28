@@ -84,6 +84,7 @@ export const Settings: React.FC = () => {
 
   // Account Tab States
   const [accountName, setAccountName] = useState("");
+  const [accountUsername, setAccountUsername] = useState("");
   const [accountPhone, setAccountPhone] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -123,8 +124,10 @@ export const Settings: React.FC = () => {
 
   // Users Modal State
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<Profile | null>(null);
   const [newUserForm, setNewUserForm] = useState({
     full_name: "",
+    username: "",
     email: "",
     role: "accountant" as UserRole,
     phone: "",
@@ -155,6 +158,7 @@ export const Settings: React.FC = () => {
 
       if (user) {
         setAccountName(user.full_name || "");
+        setAccountUsername(user.username || user.email?.split("@")[0] || "");
         setAccountPhone(user.phone || "");
         setNewEmail(user.email || "");
       }
@@ -178,12 +182,16 @@ export const Settings: React.FC = () => {
     }
     setIsSaving(true);
     try {
-      const res = await updateProfile({
+      const updates: Partial<Profile> = {
         full_name: accountName,
         phone: accountPhone,
-      });
+      };
+      if (accountUsername.trim()) {
+        updates.username = accountUsername.trim();
+      }
+      const res = await updateProfile(updates);
       if (res.success) {
-        success("تم تحديث الملف الشخصي بنجاح");
+        success("تم تحديث الملف الشخصي واسم المستخدم بنجاح");
       } else {
         error(res.error || "فشل تحديث البيانات");
       }
@@ -455,23 +463,69 @@ export const Settings: React.FC = () => {
   };
 
   // --- Handlers: Users ---
-  const handleCreateUser = async (e: React.FormEvent) => {
+  const handleOpenUserModal = (existingUser?: Profile) => {
+    if (existingUser) {
+      setEditingUser(existingUser);
+      setNewUserForm({
+        full_name: existingUser.full_name || "",
+        username: existingUser.username || existingUser.email?.split("@")[0] || "",
+        email: existingUser.email || "",
+        role: existingUser.role,
+        phone: existingUser.phone || "",
+        password: existingUser.password || "",
+      });
+    } else {
+      setEditingUser(null);
+      setNewUserForm({
+        full_name: "",
+        username: "",
+        email: "",
+        role: "accountant",
+        phone: "",
+        password: "",
+      });
+    }
+    setIsUserModalOpen(true);
+  };
+
+  const handleCreateOrUpdateUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newUserForm.full_name || !newUserForm.email) {
-      warning("الاسم والبريد الإلكتروني مطلوبان");
+    if (!newUserForm.full_name.trim()) {
+      warning("الاسم الكامل مطلوب");
       return;
     }
-    if (!newUserForm.password || newUserForm.password.length < 8) {
-      warning("كلمة المرور مطلوبة ويجب أن تكون 8 خانات على الأقل");
+    if (!newUserForm.username.trim() && !newUserForm.email.trim()) {
+      warning("يجب إدخال اسم المستخدم أو البريد الإلكتروني");
+      return;
+    }
+    if (!editingUser && (!newUserForm.password || newUserForm.password.length < 6)) {
+      warning("كلمة المرور مطلوبة ويجب أن تكون 6 خانات على الأقل");
       return;
     }
     setIsSaving(true);
     try {
-      await UserService.createUser(newUserForm);
-      success("تمت إضافة المستخدم بنجاح");
+      if (editingUser) {
+        const updates: Partial<Profile> = {
+          full_name: newUserForm.full_name.trim(),
+          username: newUserForm.username.trim() || undefined,
+          email: newUserForm.email.trim() || `${newUserForm.username.trim()}@alezz.sa`,
+          role: newUserForm.role,
+          phone: newUserForm.phone.trim(),
+        };
+        if (newUserForm.password) {
+          updates.password = newUserForm.password;
+        }
+        await UserService.updateUser(editingUser.id, updates);
+        success("تم تحديث بيانات المستخدم بنجاح");
+      } else {
+        await UserService.createUser(newUserForm);
+        success("تمت إضافة المستخدم بنجاح ومزامنته مع النظام");
+      }
       setIsUserModalOpen(false);
+      setEditingUser(null);
       setNewUserForm({
         full_name: "",
+        username: "",
         email: "",
         role: "accountant",
         phone: "",
@@ -480,7 +534,7 @@ export const Settings: React.FC = () => {
       const users = await UserService.getUsers();
       setUsersList(users);
     } catch (err) {
-      error("تعذر إضافة المستخدم");
+      error("تعذر حفظ بيانات المستخدم");
     } finally {
       setIsSaving(false);
     }
@@ -725,6 +779,22 @@ export const Settings: React.FC = () => {
                   onChange={(e) => setAccountName(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-emerald-500 font-semibold"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  اسم المستخدم (Username)
+                </label>
+                <input
+                  type="text"
+                  value={accountUsername}
+                  onChange={(e) => setAccountUsername(e.target.value)}
+                  placeholder="admin"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-mono focus:border-emerald-500 font-semibold"
+                />
+                <p className="text-[11px] text-slate-400 mt-1">
+                  يمكنك استخدامه للدخول إلى النظام مباشرة بدلاً من البريد الإلكتروني
+                </p>
               </div>
 
               <div>
@@ -1903,11 +1973,11 @@ export const Settings: React.FC = () => {
                 فريق العمل وإدارة المستخدمين (User Management)
               </h3>
               <p className="text-xs text-slate-500">
-                إضافة المستخدمين، وتعيين الصلاحيات (مدير، محاسب، مستعرض)
+                إضافة وتعديل المستخدمين (الاسم، اسم المستخدم، كلمة المرور، الصلاحيات)
               </p>
             </div>
             <button
-              onClick={() => setIsUserModalOpen(true)}
+              onClick={() => handleOpenUserModal()}
               className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 self-start sm:self-auto"
             >
               <Plus className="w-4 h-4" />
@@ -1919,11 +1989,11 @@ export const Settings: React.FC = () => {
             <table className="w-full text-start text-xs">
               <thead className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
                 <tr>
-                  <th className="py-3 px-4 text-start">المستخدم</th>
+                  <th className="py-3 px-4 text-start">الاسم</th>
+                  <th className="py-3 px-4 text-start">اسم المستخدم</th>
                   <th className="py-3 px-4 text-start">البريد الإلكتروني</th>
                   <th className="py-3 px-4 text-start">رقم الهاتف</th>
                   <th className="py-3 px-4 text-center">الصلاحية (Role)</th>
-                  <th className="py-3 px-4 text-center">تاريخ الإنشاء</th>
                   <th className="py-3 px-4 text-center">إجراءات</th>
                 </tr>
               </thead>
@@ -1935,6 +2005,9 @@ export const Settings: React.FC = () => {
                   >
                     <td className="py-3.5 px-4 font-bold text-slate-900">
                       {u.full_name}
+                    </td>
+                    <td className="py-3.5 px-4 font-mono font-bold text-emerald-800">
+                      {u.username || u.email?.split("@")[0] || "-"}
                     </td>
                     <td className="py-3.5 px-4 font-mono text-slate-600">
                       {u.email}
@@ -1957,20 +2030,24 @@ export const Settings: React.FC = () => {
                         <option value="viewer">مستعرض (Viewer)</option>
                       </select>
                     </td>
-                    <td className="py-3.5 px-4 text-center font-mono text-slate-500">
-                      {new Date(u.created_at).toLocaleDateString(
-                        "ar-SA-u-nu-latn",
-                      )}
-                    </td>
                     <td className="py-3.5 px-4 text-center">
-                      <button
-                        onClick={() => handleDeleteUser(u.id)}
-                        disabled={u.id === user?.id}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-30"
-                        title="حذف المستخدم"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => handleOpenUserModal(u)}
+                          className="p-1.5 text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
+                          title="تعديل المستخدم وكلمة المرور"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(u.id)}
+                          disabled={u.id === user?.id}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-30"
+                          title="حذف المستخدم"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -2109,16 +2186,22 @@ export const Settings: React.FC = () => {
         </div>
       )}
 
-      {/* User Create Modal */}
+      {/* User Create/Edit Modal */}
       {isUserModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
           <form
-            onSubmit={handleCreateUser}
+            onSubmit={handleCreateOrUpdateUser}
             className="bg-white w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4"
           >
-            <h3 className="font-bold text-base text-slate-900">
-              إضافة مستخدم جديد للنظام
-            </h3>
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <h3 className="font-bold text-base text-slate-900">
+                {editingUser ? "تعديل بيانات المستخدم وكلمة المرور" : "إضافة مستخدم جديد للنظام"}
+              </h3>
+              <span className="text-[11px] font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md font-bold">
+                {editingUser ? "تعديل" : "جديد"}
+              </span>
+            </div>
+
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
                 الاسم الكامل <span className="text-rose-500">*</span>
@@ -2134,21 +2217,40 @@ export const Settings: React.FC = () => {
                 placeholder="أ / محمد علي"
               />
             </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                البريد الإلكتروني <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="email"
-                required
-                value={newUserForm.email}
-                onChange={(e) =>
-                  setNewUserForm({ ...newUserForm, email: e.target.value })
-                }
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm font-mono focus:border-emerald-500"
-                placeholder="user@alezz.sa"
-              />
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  اسم المستخدم (Username) <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newUserForm.username}
+                  onChange={(e) =>
+                    setNewUserForm({ ...newUserForm, username: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm font-mono focus:border-emerald-500"
+                  placeholder="mohamed"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  البريد الإلكتروني (اختياري)
+                </label>
+                <input
+                  type="email"
+                  value={newUserForm.email}
+                  onChange={(e) =>
+                    setNewUserForm({ ...newUserForm, email: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm font-mono focus:border-emerald-500"
+                  placeholder="user@alezz.sa"
+                />
+              </div>
             </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -2184,29 +2286,34 @@ export const Settings: React.FC = () => {
                 />
               </div>
             </div>
+
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                كلمة المرور <span className="text-rose-500">*</span>
+                كلمة المرور {editingUser ? "(اتركها فارغة إذا لم ترد التغيير)" : <span className="text-rose-500">*</span>}
               </label>
               <input
                 type="password"
-                required
-                minLength={8}
+                required={!editingUser}
+                minLength={6}
                 value={newUserForm.password}
                 onChange={(e) =>
                   setNewUserForm({ ...newUserForm, password: e.target.value })
                 }
                 className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm font-mono focus:border-emerald-500"
-                placeholder="8 خانات على الأقل"
+                placeholder={editingUser ? "اتركها فارغة للإبقاء على الحالية" : "6 خانات على الأقل (مثال: 100200300aa)"}
               />
               <p className="text-[11px] text-slate-400 mt-1">
-                يستخدمها المستخدم لتسجيل الدخول — احرص على إبلاغه بها
+                يستخدمها المستخدم لتسجيل الدخول فوراً
               </p>
             </div>
+
             <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
               <button
                 type="button"
-                onClick={() => setIsUserModalOpen(false)}
+                onClick={() => {
+                  setIsUserModalOpen(false);
+                  setEditingUser(null);
+                }}
                 className="px-4 py-2 text-slate-600 hover:bg-slate-100 font-bold text-xs rounded-xl"
               >
                 إلغاء
@@ -2216,7 +2323,7 @@ export const Settings: React.FC = () => {
                 disabled={isSaving}
                 className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md"
               >
-                {isSaving ? "جاري الإضافة..." : "إضافة المستخدم"}
+                {isSaving ? "جاري الحفظ..." : editingUser ? "حفظ التعديلات" : "إضافة المستخدم"}
               </button>
             </div>
           </form>
